@@ -1,0 +1,349 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Gor Atlas design tokens — see docs/06-design-system.md
+   Dark (indigo/charcoal) is the default; light is parchment/sand.
+   ========================================================================== */
+
+:root {
+  --ink: #f2ece1;
+  --ink-strong: #fffaf0;
+  --surface-0: #0d0f18;
+  --surface-1: #161a28;
+  --surface-2: #1f2434;
+  --surface-3: #2a3042;
+  --indigo: #1b1f3b;
+  --terracotta: #d4674a;
+  --terracotta-ink: #1a0d09;
+  --peacock: #2fb6bf;
+  --gold: #c9a227;
+  --muted: #9a9484;
+  --line: #2a3042;
+  --line-strong: #3b435c;
+
+  /* Semantic verification colours — meaning-bearing, never decorative */
+  --v-verified: #3ab36a;
+  --v-partial: #d99a1f;
+  --v-basic: #9096a5;
+  --v-historical: #5a95e0;
+  --v-diaspora: #a077d6;
+  --v-disputed: #e05a42;
+
+  --font-display: ui-serif, "Iowan Old Style", "Source Serif 4", "Palatino Linotype",
+    Georgia, serif;
+  --font-ui: ui-sans-serif, "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Noto Sans", sans-serif;
+  --font-indic: "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Kannada",
+    "Nirmala UI", sans-serif;
+
+  --radius-control: 4px;
+  --radius-card: 8px;
+  --radius-sheet: 14px;
+
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --ink: #14151c;
+  --ink-strong: #000000;
+  --surface-0: #f7f2e8;
+  --surface-1: #efe6d6;
+  --surface-2: #e5d9c3;
+  --surface-3: #dbcdb2;
+  --terracotta: #b4472e;
+  --terracotta-ink: #ffffff;
+  --peacock: #0e7c86;
+  --gold: #8a6d24;
+  --muted: #5c5647;
+  --line: #d8ccb4;
+  --line-strong: #b9a887;
+
+  --v-verified: #1f7a44;
+  --v-partial: #96650a;
+  --v-basic: #5f646f;
+  --v-historical: #2359a3;
+  --v-diaspora: #6a3fa8;
+  --v-disputed: #a92e1c;
+
+  color-scheme: light;
+}
+
+/* Manual high-contrast mode (WCAG 2.2 AA+, doc 06 §8) */
+[data-contrast="high"] {
+  --ink: #ffffff;
+  --ink-strong: #ffffff;
+  --surface-0: #000000;
+  --surface-1: #0a0a0a;
+  --surface-2: #141414;
+  --surface-3: #1f1f1f;
+  --muted: #e0e0e0;
+  --line: #8b8b8b;
+  --line-strong: #ffffff;
+  --peacock: #6ee7f0;
+  --terracotta: #ff9b7d;
+  --gold: #ffd75e;
+}
+
+[data-theme="light"][data-contrast="high"] {
+  --ink: #000000;
+  --surface-0: #ffffff;
+  --surface-1: #f4f4f4;
+  --surface-2: #eaeaea;
+  --muted: #2b2b2b;
+  --line: #444444;
+  --line-strong: #000000;
+  --peacock: #005f66;
+  --terracotta: #8c2f19;
+  --gold: #5c4712;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-indigo: var(--indigo);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-ink: var(--terracotta-ink);
+  --color-peacock: var(--peacock);
+  --color-gold: var(--gold);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-v-verified: var(--v-verified);
+  --color-v-partial: var(--v-partial);
+  --color-v-basic: var(--v-basic);
+  --color-v-historical: var(--v-historical);
+  --color-v-diaspora: var(--v-diaspora);
+  --color-v-disputed: var(--v-disputed);
+
+  --font-display: var(--font-display);
+  --font-ui: var(--font-ui);
+}
+
+/* ========================================================================== */
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--surface-0);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Indic scripts need more vertical room at the same optical size */
+:lang(hi), :lang(mr), :lang(te), :lang(kn) {
+  font-family: var(--font-indic), var(--font-ui);
+  line-height: 1.7;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+table, .tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus: visible, 2px peacock with offset, on every interactive element */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--peacock);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--peacock);
+  color: var(--surface-0);
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--terracotta);
+  color: var(--terracotta-ink);
+  font-weight: 600;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Banjara-derived geometry, used sparingly: dividers and section marks only.
+   Abstract geometric motifs — not a reproduction of any specific community's
+   embroidery design.
+   -------------------------------------------------------------------------- */
+
+.textile-rule {
+  height: 6px;
+  width: 100%;
+  background-image:
+    linear-gradient(135deg, var(--terracotta) 25%, transparent 25%),
+    linear-gradient(225deg, var(--terracotta) 25%, transparent 25%),
+    linear-gradient(45deg, var(--peacock) 25%, transparent 25%),
+    linear-gradient(315deg, var(--peacock) 25%, transparent 25%);
+  background-position: 0 0, 6px 0, 6px -6px, 0 6px;
+  background-size: 12px 12px;
+  background-repeat: repeat-x;
+  opacity: 0.55;
+}
+
+.textile-rule-gold {
+  height: 3px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--gold) 0 6px,
+    transparent 6px 12px
+  );
+  opacity: 0.6;
+}
+
+/* Archival paper grain, ≤5% opacity, never behind body copy */
+.paper-grain {
+  position: relative;
+}
+.paper-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------------------------
+   Prose (encyclopedia articles)
+   -------------------------------------------------------------------------- */
+
+.prose-atlas {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  max-width: 68ch;
+}
+.prose-atlas h2 {
+  font-size: 1.5rem;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+  color: var(--ink-strong);
+}
+.prose-atlas h3 {
+  font-size: 1.2rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.prose-atlas p { margin-bottom: 1.1rem; }
+.prose-atlas ul { margin: 0 0 1.1rem 1.25rem; list-style: disc; }
+.prose-atlas li { margin-bottom: 0.4rem; }
+.prose-atlas strong { color: var(--ink-strong); font-weight: 650; }
+.prose-atlas blockquote {
+  border-inline-start: 3px solid var(--terracotta);
+  padding-inline-start: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------------------
+   Map surfaces
+   -------------------------------------------------------------------------- */
+
+.maplibregl-popup-content {
+  background: var(--surface-1) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  padding: 0 !important;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+}
+.maplibregl-popup-tip {
+  border-top-color: var(--surface-1) !important;
+  border-bottom-color: var(--surface-1) !important;
+}
+.maplibregl-ctrl-group {
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line-strong) !important;
+}
+.maplibregl-ctrl-group button + button { border-top-color: var(--line) !important; }
+.maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, var(--surface-0) 82%, transparent) !important;
+  color: var(--muted) !important;
+  font-size: 10px;
+}
+.maplibregl-ctrl-attrib a { color: var(--peacock) !important; }
+
+/* Archival tint layer — a styling treatment, NOT a historical map source */
+.map-archival canvas {
+  filter: sepia(0.55) contrast(0.92) brightness(0.92) saturate(0.7);
+}
+
+/* --------------------------------------------------------------------------
+   Motion — everything below is disabled under reduced-motion
+   -------------------------------------------------------------------------- */
+
+@keyframes atlas-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 0.9;  transform: scale(1.35); }
+}
+@keyframes atlas-draw {
+  from { stroke-dashoffset: var(--dash, 600); }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes atlas-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.animate-pulse-point { animation: atlas-pulse 4s ease-in-out infinite; }
+.animate-draw {
+  stroke-dasharray: var(--dash, 600);
+  animation: atlas-draw 3.2s ease-out forwards;
+}
+.animate-fade-up { animation: atlas-fade-up 0.6s cubic-bezier(.2,.8,.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-draw { stroke-dashoffset: 0; }
+}
+
+/* Low-bandwidth mode: kill the decorative hero animation and grain entirely */
+[data-lowdata="on"] .animate-pulse-point,
+[data-lowdata="on"] .animate-draw { animation: none; }
+[data-lowdata="on"] .animate-draw { stroke-dashoffset: 0; }
+[data-lowdata="on"] .paper-grain::after { display: none; }
+[data-lowdata="on"] .hero-decoration { display: none; }
+
+/* Utility */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
