@@ -2,3 +2,9 @@ _site/
 .sass-cache/
 .jekyll-metadata
 .bundle
+
+# Next.js build output. The Gor Atlas app lives in gor-atlas/ and ignores its
+# own .next/, but running a build from the repo root drops trace artefacts
+# here too — ignore them at the root so they never reach a commit.
+.next/
+node_modules/
