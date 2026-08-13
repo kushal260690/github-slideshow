@@ -36,6 +36,8 @@ export function MapExplorer() {
   const [baseLayer, setBaseLayer] = useState<BaseLayerKey>("standard");
   const [heatmap, setHeatmap] = useState(false);
   const [labels, setLabels] = useState(false);
+  const [threeD, setThreeD] = useState(false);
+  const [globe, setGlobe] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<{ lng: number; lat: number; zoom?: number } | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -71,6 +73,7 @@ export function MapExplorer() {
           lat: t.coordinates![1],
           markerKey: markerState(t.verification, t.settlementType).key,
           isDemo: t.isDemo,
+          completeness: t.completenessPct,
         })),
     [results],
   );
@@ -304,6 +307,9 @@ export function MapExplorer() {
           baseLayer={baseLayer}
           showHeatmap={heatmap}
           showLabels={labels}
+          threeD={threeD}
+          globe={globe}
+          autoSpin={!threeD && !flyTo}
           selectedId={selected}
           onSelect={setSelected}
           flyTo={flyTo}
@@ -346,12 +352,48 @@ export function MapExplorer() {
             </button>
             <button
               type="button"
+              aria-pressed={threeD}
+              onClick={() => {
+                const next = !threeD;
+                setThreeD(next);
+                // Columns are metres tall; at world zoom they are invisible
+                // specks. Turning 3D on has to bring the camera down to where
+                // the data actually is, or the control appears to do nothing.
+                if (next && points.length > 0) {
+                  const lng = points.reduce((n, p) => n + p.lng, 0) / points.length;
+                  const lat = points.reduce((n, p) => n + p.lat, 0) / points.length;
+                  setFlyTo({ lng, lat, zoom: 5.2 });
+                }
+              }}
+              className={`${chip} ${threeD ? chipOn : ""}`}
+              title="Tilt the camera and extrude each settlement into a column whose height is how complete its profile is"
+            >
+              3D columns
+            </button>
+            <button
+              type="button"
+              aria-pressed={globe}
+              onClick={() => setGlobe((v) => !v)}
+              className={`${chip} ${globe ? chipOn : ""}`}
+              title="Globe projection. Mercator distorts exactly the latitudes this archive covers."
+            >
+              {globe ? "Globe" : "Flat"}
+            </button>
+            <button
+              type="button"
               onClick={() => setFiltersOpen(true)}
               className={`${chip} lg:hidden`}
             >
               Filters
             </button>
           </div>
+          {threeD ? (
+            <p className="mt-1 max-w-64 text-[10px] text-muted">
+              Column height is <strong className="text-ink">profile completeness</strong>, not
+              population — population is undocumented almost everywhere, and extruding it would
+              build a skyline out of missing data. Drag with right button to rotate.
+            </p>
+          ) : null}
           {baseLayer === "archival" ? (
             <p className="mt-1 max-w-56 text-[10px] text-muted">{BASE_LAYERS.archival.note}</p>
           ) : null}

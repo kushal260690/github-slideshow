@@ -3,7 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Map as MapLibreMap, GeoJSONSource } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
-import { INDIA_VIEW, STATES } from "@/data/geography";
+import { STATES, WORLD_VIEW } from "@/data/geography";
 import { MARKER_COLORS, baseStyle, type BaseLayerKey } from "@/lib/mapStyles";
 
 export interface MapPoint {
@@ -13,6 +13,8 @@ export interface MapPoint {
   lat: number;
   markerKey: string;
   isDemo: boolean;
+  /** 0-100. Drives the height of the 3D column. */
+  completeness?: number;
 }
 
 export interface MapLine {
@@ -37,6 +39,13 @@ interface MapViewProps {
   className?: string;
   interactive?: boolean;
   initialZoom?: number;
+  /** Globe projection. Falls back to Mercator when false. */
+  globe?: boolean;
+  /** Extruded columns + camera pitch. */
+  threeD?: boolean;
+  /** Slow idle rotation, for the world view. Never runs under reduced motion. */
+  autoSpin?: boolean;
+  center?: [number, number];
 }
 
 /**
@@ -59,6 +68,10 @@ export function MapView({
   className = "",
   interactive = true,
   initialZoom,
+  globe = true,
+  threeD = false,
+  autoSpin = false,
+  center,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -82,14 +95,17 @@ export function MapView({
 
         map = new maplibregl.Map({
           container: containerRef.current,
-          style: baseStyle(baseLayer),
-          center: INDIA_VIEW.center,
-          zoom: initialZoom ?? INDIA_VIEW.zoom,
+          style: baseStyle(baseLayer, globe),
+          center: center ?? WORLD_VIEW.center,
+          zoom: initialZoom ?? WORLD_VIEW.zoom,
           attributionControl: { compact: true },
           interactive,
-          // Keeps the map usable on inexpensive handsets.
-          maxPitch: 0,
-          dragRotate: false,
+          // Pitch and rotation are enabled only in 3D. In 2D the map stays
+          // north-up and flat, because a tilted map you cannot un-tilt is a
+          // usability trap on a small screen.
+          maxPitch: threeD ? 70 : 0,
+          pitch: threeD ? 50 : 0,
+          dragRotate: threeD,
           renderWorldCopies: false,
         });
 
@@ -136,6 +152,14 @@ export function MapView({
     });
 
     map.addSource("routes", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: [] },
+    });
+
+    // Columns are a SEPARATE source from the clustered points, because they
+    // must never cluster: a merged column would express a height nobody
+    // claimed.
+    map.addSource("columns", {
       type: "geojson",
       data: { type: "FeatureCollection", features: [] },
     });
@@ -188,6 +212,39 @@ export function MapView({
         "line-width": ["interpolate", ["linear"], ["zoom"], 3, 1.5, 8, 4],
         "line-opacity": 0.85,
         "line-dasharray": [2, 1.5],
+      },
+    });
+
+    /*
+     * Extruded "evidence columns".
+     *
+     * Height is PROFILE COMPLETENESS, not population. That choice is the whole
+     * argument for having 3D here at all: population is undocumented for
+     * almost every settlement, so extruding it would build a skyline out of
+     * missing data. Completeness is a fact the archive actually knows about
+     * itself, so the tallest column always means "best documented" and a plain
+     * of short stubs is an honest picture of an archive at the start.
+     */
+    map.addLayer({
+      id: "tanda-columns",
+      type: "fill-extrusion",
+      source: "columns",
+      layout: { visibility: "none" },
+      paint: {
+        "fill-extrusion-color": [
+          "match",
+          ["get", "markerKey"],
+          "verified", MARKER_COLORS.verified,
+          "partial", MARKER_COLORS.partial,
+          "historical", MARKER_COLORS.historical,
+          "diaspora", MARKER_COLORS.diaspora,
+          "disputed", MARKER_COLORS.disputed,
+          MARKER_COLORS.basic,
+        ],
+        "fill-extrusion-opacity": 0.85,
+        "fill-extrusion-height": ["get", "height"],
+        "fill-extrusion-base": 0,
+        "fill-extrusion-vertical-gradient": true,
       },
     });
 
@@ -245,15 +302,23 @@ export function MapView({
           "historical", MARKER_COLORS.historical,
           "diaspora", MARKER_COLORS.diaspora,
           "disputed", "rgba(0,0,0,0)",
+          // Regions open for documentation are hollow rings, never filled
+          // dots: they are not settlements and must not read as any.
+          "region", "rgba(0,0,0,0)",
           MARKER_COLORS.basic,
         ],
         // Disputed markers are drawn as a red outline with a hollow centre, so
         // the state is legible without relying on colour alone.
-        "circle-stroke-width": ["case", ["==", ["get", "markerKey"], "disputed"], 3, 1.5],
+        "circle-stroke-width": [
+          "case",
+          ["==", ["get", "markerKey"], "disputed"], 3,
+          ["==", ["get", "markerKey"], "region"], 1.5,
+          1.5,
+        ],
         "circle-stroke-color": [
           "case",
-          ["==", ["get", "markerKey"], "disputed"],
-          MARKER_COLORS.disputed,
+          ["==", ["get", "markerKey"], "disputed"], MARKER_COLORS.disputed,
+          ["==", ["get", "markerKey"], "region"], MARKER_COLORS.region,
           "rgba(13,15,24,0.85)",
         ],
       },
@@ -320,6 +385,38 @@ export function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
+
+    // Columns need polygons, so each point becomes a small hexagon. Radius is
+    // corrected for latitude so a column near the equator and one in the Gulf
+    // read at the same footprint rather than smearing east-west.
+    const hexagon = (lng: number, lat: number, metres: number) => {
+      const dLat = metres / 111_320;
+      const dLng = dLat / Math.max(0.15, Math.cos((lat * Math.PI) / 180));
+      const ring: [number, number][] = [];
+      for (let i = 0; i <= 6; i++) {
+        const a = (i / 6) * Math.PI * 2;
+        ring.push([lng + Math.cos(a) * dLng, lat + Math.sin(a) * dLat]);
+      }
+      return [ring];
+    };
+
+    const columns = map.getSource("columns") as GeoJSONSource | undefined;
+    columns?.setData({
+      type: "FeatureCollection",
+      features: points.map((p) => ({
+        type: "Feature",
+        geometry: { type: "Polygon", coordinates: hexagon(p.lng, p.lat, 16000) },
+        properties: {
+          id: p.id,
+          name: p.name,
+          markerKey: p.markerKey,
+          // A record with nothing documented still gets a visible stub, so it
+          // reads as "present but empty" rather than vanishing from the scene.
+          height: 12_000 + (p.completeness ?? 0) * 1_800,
+        },
+      })),
+    });
+
     const src = map.getSource("tandas") as GeoJSONSource | undefined;
     src?.setData({
       type: "FeatureCollection",
@@ -366,6 +463,57 @@ export function MapView({
     map.setLayoutProperty("state-label", "visibility", showLabels ? "visible" : "none");
   }, [showLabels, ready]);
 
+  // 3D: show the columns, tilt the camera, and hand back rotation control.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (map.getLayer("tanda-columns")) {
+      map.setLayoutProperty("tanda-columns", "visibility", threeD ? "visible" : "none");
+    }
+    map.setMaxPitch(threeD ? 70 : 0);
+    if (threeD) map.dragRotate.enable();
+    else map.dragRotate.disable();
+    map.easeTo({ pitch: threeD ? 50 : 0, duration: reduced ? 0 : 700 });
+  }, [threeD, ready]);
+
+  /*
+   * Idle rotation for the world view.
+   *
+   * Stops permanently on any user interaction rather than resuming: a globe
+   * that drifts back under the reader's cursor is the single most irritating
+   * thing a map like this can do. Never starts under reduced motion or when
+   * the tab is hidden.
+   */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !autoSpin) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+
+    let raf = 0;
+    let stopped = false;
+    let last = performance.now();
+
+    const stop = () => {
+      stopped = true;
+      cancelAnimationFrame(raf);
+    };
+    for (const evt of ["mousedown", "touchstart", "wheel", "keydown"] as const) {
+      map.getCanvas().addEventListener(evt, stop, { once: true, passive: true });
+    }
+
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (!stopped && !document.hidden && map.getZoom() < 4) {
+        map.setCenter([map.getCenter().lng + dt * 0.0022, map.getCenter().lat]);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [autoSpin, ready]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -387,12 +535,12 @@ export function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    map.setStyle(baseStyle(baseLayer));
+    map.setStyle(baseStyle(baseLayer, globe));
     map.once("styledata", () => {
       if (!map.getSource("tandas")) installLayers(map);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [baseLayer]);
+  }, [baseLayer, globe]);
 
   return (
     <div className={`relative ${className}`}>

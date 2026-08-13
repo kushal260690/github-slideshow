@@ -61,10 +61,24 @@ export const BASE_LAYERS: Record<BaseLayerKey, BaseLayer> = {
   },
 };
 
-export function baseStyle(key: BaseLayerKey): StyleSpecification {
+export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
   const layer = BASE_LAYERS[key];
   return {
     version: 8,
+    /*
+     * Globe, not Mercator, as the default projection.
+     *
+     * This is an editorial decision before it is a visual one. Mercator
+     * inflates the high latitudes and flattens the equatorial band, which for
+     * an atlas of a South Asian community and its diaspora across the Gulf,
+     * Africa and south-east Asia distorts precisely the regions the archive is
+     * about. A globe also makes the one honest claim a world map should make
+     * at low zoom: these are distances people travelled, not a flat chart.
+     *
+     * Falls back to Mercator when the reader asks for reduced motion or
+     * low-data mode, where spinning a sphere is the wrong thing to do.
+     */
+    projection: { type: globe ? "globe" : "mercator" },
     // MapLibre cannot render ANY text in a symbol layer without a glyph
     // source — cluster counts and administrative labels fail silently without
     // this line. The endpoint is MapLibre's own open font server; it is the
@@ -81,12 +95,24 @@ export function baseStyle(key: BaseLayerKey): StyleSpecification {
         attribution: layer.attribution,
       },
     },
+    // Atmosphere around the globe's limb. Purely spatial cueing — it tells the
+    // eye that the surface curves away, which is the whole point of the globe.
+    sky: {
+      "sky-color": "#0b1020",
+      "horizon-color": "#1b1f3b",
+      "fog-color": "#0d0f18",
+      "fog-ground-blend": 0.6,
+      "horizon-fog-blend": 0.5,
+      "sky-horizon-blend": 0.8,
+      "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 0.9, 5, 0.4, 7, 0],
+    },
     layers: [
       {
         id: "background",
         type: "background",
         // Visible if tiles fail to load, so markers still read against a
-        // deliberate ground rather than white.
+        // deliberate ground rather than white. On the globe this doubles as
+        // the planet's body colour.
         paint: { "background-color": "#12151f" },
       },
       {
@@ -111,6 +137,8 @@ export const MARKER_COLORS: Record<string, string> = {
   historical: "#5a95e0",
   diaspora: "#a077d6",
   disputed: "#e05a42",
+  /** Not a settlement state — a region open for documentation. */
+  region: "#2fb6bf",
 };
 
 export const MARKER_LEGEND = [

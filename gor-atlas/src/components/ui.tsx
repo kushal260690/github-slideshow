@@ -406,7 +406,7 @@ export function Stat({
   href,
   tone = "default",
 }: {
-  value: string | number;
+  value: ReactNode;
   label: string;
   note?: string;
   href?: string;

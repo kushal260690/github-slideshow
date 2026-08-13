@@ -266,7 +266,7 @@ export function districtName(id: string): string {
   return DISTRICT_BY_ID.get(id)?.name ?? id;
 }
 
-/** Map framing for India, used as the default viewport. */
+/** Framing for the Indian subcontinent, where documentation begins. */
 export const INDIA_VIEW = {
   center: [79.0, 21.5] as [number, number],
   zoom: 3.9,
@@ -275,3 +275,90 @@ export const INDIA_VIEW = {
     [98.5, 36.5],
   ] as [[number, number], [number, number]],
 };
+
+/**
+ * The default viewport is the whole globe, not India.
+ *
+ * This is a scope decision, not a styling one. The community's geography did
+ * not stop at a national border: labour migration, indenture-era movement and
+ * contemporary work migration have carried Gor/Banjara families to the Gulf,
+ * to south-east Asia, to Europe, to North America, to Africa and to Australia.
+ * An atlas framed on India tells a diaspora reader that their settlement is a
+ * footnote to somewhere else. Opening on a globe says the opposite.
+ */
+export const WORLD_VIEW = {
+  center: [58.0, 16.0] as [number, number],
+  zoom: 1.75,
+};
+
+export interface WorldRegion {
+  id: string;
+  name: string;
+  /** Rough label placement. Not a boundary and not a claim of presence. */
+  centroid: [number, number];
+  note: string;
+}
+
+/**
+ * Regions open for documentation worldwide.
+ *
+ * Listing a region asserts ONLY that this archive will accept and review
+ * records from it. It does NOT assert that a Gor/Banjara community exists
+ * there — exactly the rule already applied to Indian districts. Every region
+ * begins at zero documented records, and the world directory shows the zeros.
+ *
+ * Diaspora records are handled more cautiously than settlement records: many
+ * concern labour-migrant populations whose circumstances can be precarious, so
+ * their coordinates are coarsened by default and they are excluded from bulk
+ * dataset export.
+ */
+export const WORLD_REGIONS: WorldRegion[] = [
+  {
+    id: "south-asia",
+    name: "South Asia",
+    centroid: [79.0, 21.5],
+    note: "Where documentation begins. India, and any records from neighbouring states.",
+  },
+  {
+    id: "gulf",
+    name: "Gulf and West Asia",
+    centroid: [50.5, 25.0],
+    note: "Work migration from the 1970s onward is widely reported and poorly documented at settlement level.",
+  },
+  {
+    id: "southeast-asia",
+    name: "South-east Asia",
+    centroid: [103.0, 5.0],
+    note: "Open for documentation. No records held.",
+  },
+  {
+    id: "east-africa",
+    name: "East Africa",
+    centroid: [38.0, 0.5],
+    note: "Open for documentation. No records held.",
+  },
+  {
+    id: "europe",
+    name: "Europe",
+    centroid: [9.0, 50.0],
+    note: "Open for documentation. No records held.",
+  },
+  {
+    id: "north-america",
+    name: "North America",
+    centroid: [-96.0, 40.0],
+    note: "Open for documentation. No records held.",
+  },
+  {
+    id: "oceania",
+    name: "Australia and Oceania",
+    centroid: [144.0, -30.0],
+    note: "Open for documentation. No records held.",
+  },
+  {
+    id: "south-america",
+    name: "South America",
+    centroid: [-58.0, -20.0],
+    note: "Open for documentation. No records held.",
+  },
+];

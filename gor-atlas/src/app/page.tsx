@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Hero } from "@/components/Hero";
 import { HeroCopy } from "@/components/HeroCopy";
+import { HeroGlobe } from "@/components/HeroGlobe";
+import { CountUp, Reveal } from "@/components/Reveal";
+import { WorldStrip } from "@/components/WorldStrip";
 import { Callout, DemoChip, Stat, TextileRule, VerificationChip } from "@/components/ui";
 import { ARTICLES } from "@/data/articles";
 import { STATES } from "@/data/geography";
@@ -30,10 +32,13 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------- */}
       {/* Hero                                                             */}
       {/* ---------------------------------------------------------------- */}
-      <section className="relative overflow-hidden border-b border-line bg-surface-0">
-        <Hero />
+      <section className="relative min-h-[86vh] overflow-hidden border-b border-line bg-surface-0">
+        <HeroGlobe />
         <HeroCopy />
       </section>
+
+      {/* World scope — the archive is not India-only */}
+      <WorldStrip />
 
       {/* ---------------------------------------------------------------- */}
       {/* Counters — computed from the database, including the zeros        */}
@@ -48,37 +53,37 @@ export default function HomePage() {
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Stat
-              value={stats.tandasDocumented}
+              value={<CountUp value={stats.tandasDocumented} />}
               label="Tandas documented"
               note="Real records, excluding demos"
               href="/directory"
             />
             <Stat
-              value={stats.tandasVerified}
+              value={<CountUp value={stats.tandasVerified} />}
               label="Verified profiles"
               note="Two sources, one documentary, one reviewer"
               tone="gold"
             />
             <Stat
-              value={stats.statesCovered}
+              value={<CountUp value={stats.statesCovered} />}
               label="States covered"
               note={`${stats.statesOpenForDocumentation} states open for documentation`}
               href="/states"
             />
             <Stat
-              value={stats.documentarySources}
+              value={<CountUp value={stats.documentarySources} />}
               label="Documentary source leads"
               note="Registered, awaiting citation detail"
               href="/sources"
             />
             <Stat
-              value={stats.oralHistories}
+              value={<CountUp value={stats.oralHistories} />}
               label="Oral histories preserved"
               note="Published with recorded consent"
               href="/oral-histories"
             />
             <Stat
-              value={stats.tandasDemo}
+              value={<CountUp value={stats.tandasDemo} />}
               label="Demonstration records"
               note="Invented. Excluded from every count above."
               tone="demo"
@@ -115,7 +120,7 @@ export default function HomePage() {
             className="group relative block overflow-hidden rounded-lg border border-line bg-surface-1"
           >
             <div className="relative h-64 sm:h-80">
-              <Hero />
+              <HeroGlobe />
               <div className="absolute inset-0 flex items-center justify-center bg-surface-0/40">
                 <span className="rounded-sm border border-line-strong bg-surface-1 px-4 py-2 text-sm text-ink transition-colors group-hover:border-peacock group-hover:text-peacock">
                   Open the interactive map
@@ -279,9 +284,9 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {ARTICLES.slice(0, 6).map((a) => (
+            {ARTICLES.slice(0, 6).map((a, i) => (
+              <Reveal key={a.id} delay={i * 40}>
               <Link
-                key={a.id}
                 href={`/encyclopedia/${a.slug}`}
                 className="group rounded-lg border border-line bg-surface-0 p-5 transition-colors hover:border-peacock"
               >
@@ -292,6 +297,7 @@ export default function HomePage() {
                   {a.readingMinutes} min read · Editorial draft
                 </p>
               </Link>
+              </Reveal>
             ))}
           </div>
         </div>
