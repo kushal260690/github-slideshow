@@ -1,0 +1,21 @@
+{
+  "name": "Gor Atlas — The Living Encyclopedia of Banjara Heritage",
+  "short_name": "Gor Atlas",
+  "description": "A source-attributed geographic and cultural archive of the Gor/Banjara community. Every Tanda. Every Clan. Every Story.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0d0f18",
+  "theme_color": "#0d0f18",
+  "categories": ["education", "reference", "travel"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Explore the map", "url": "/map" },
+    { "name": "Document your Tanda", "url": "/contribute" },
+    { "name": "Text directory", "url": "/directory" }
+  ]
+}

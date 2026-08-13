@@ -127,6 +127,15 @@ each event at the width of its evidence.
 - **Moderation dashboard** — field-level accept / reject / request-evidence, automated
   flags, duplicate detection, a consent queue, coverage by state, and an append-only audit
   log.
+- **Working language switcher** — English, Hindi, Telugu, Marathi and Kannada, resolved
+  from `?lang=`, then a saved choice, then the browser's own preferences. Switching costs
+  no round trip, and a locale still falling back to English says so rather than hiding it.
+- **Installable PWA** — manifest, icon and a service worker with three strategies:
+  cache-first for content-hashed build assets, network-first with a cache fallback for
+  pages, and capped cache-first for map tiles, which are the largest data cost on the site.
+  "Save for offline" on a profile really stores the page and its API payload.
+  `/api/submissions`, `/api/admin` and `/admin` are never cached — a reviewer must not see
+  a stale queue, and consent state must never come from a cache a revocation cannot reach.
 
 ## Accessibility and access
 

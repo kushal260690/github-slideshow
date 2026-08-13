@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Hero } from "@/components/Hero";
-import { SearchBox } from "@/components/SearchBox";
+import { HeroCopy } from "@/components/HeroCopy";
 import { Callout, DemoChip, Stat, TextileRule, VerificationChip } from "@/components/ui";
 import { ARTICLES } from "@/data/articles";
 import { STATES } from "@/data/geography";
@@ -32,44 +32,7 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section className="relative overflow-hidden border-b border-line bg-surface-0">
         <Hero />
-        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 sm:py-28">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-terracotta">
-            Every Tanda · Every Clan · Every Story
-          </p>
-          <h1 className="font-display text-4xl leading-tight text-ink-strong sm:text-6xl">
-            Every Tanda Has a Story
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg">
-            Explore the living history, clans, journeys and culture of the Gor/Banjara people.
-          </p>
-
-          <div className="mx-auto mt-8 max-w-xl">
-            <SearchBox size="lg" />
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/map"
-              className="rounded-sm bg-terracotta px-6 py-3 text-sm font-semibold text-terracotta-ink transition-opacity hover:opacity-90"
-            >
-              Explore the Map
-            </Link>
-            <Link
-              href="/contribute"
-              className="rounded-sm border border-line-strong px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-peacock hover:text-peacock"
-            >
-              Document Your Tanda
-            </Link>
-          </div>
-
-          <p className="mx-auto mt-8 max-w-2xl rounded-lg border border-line bg-surface-1/80 p-3 text-xs text-muted backdrop-blur">
-            <strong className="text-ink">Prototype.</strong> This build contains five clearly
-            labelled demonstration records and no verified settlement data. The glowing points
-            above are decoration placed at state centroids — they are not settlements, because
-            drawing thousands of invented dots would be the exact fabrication this archive exists
-            to refuse.
-          </p>
-        </div>
+        <HeroCopy />
       </section>
 
       {/* ---------------------------------------------------------------- */}

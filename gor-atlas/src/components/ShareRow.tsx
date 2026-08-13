@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cacheForOffline } from "@/components/ServiceWorker";
 
 /**
  * Share and offline controls.
@@ -73,6 +74,12 @@ export function ShareRow({
       } else {
         localStorage.setItem(key, new Date().toISOString());
         setSaved(true);
+        // Actually store the page and its data in the service worker cache, so
+        // "saved" means readable without a connection rather than merely
+        // bookmarked.
+        cacheForOffline(path, storageKey.startsWith("tanda-")
+          ? `/api/tandas/${storageKey.slice("tanda-".length)}`
+          : undefined);
       }
     } catch {
       /* storage unavailable */

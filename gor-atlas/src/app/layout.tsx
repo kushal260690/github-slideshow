@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SiteFooter, SiteHeader } from "@/components/Chrome";
+import { LocaleProvider } from "@/components/LocaleProvider";
 import { PreferencesProvider } from "@/components/Preferences";
+import { ServiceWorker } from "@/components/ServiceWorker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://gor-atlas.example.org"),
@@ -29,6 +31,9 @@ export const metadata: Metadata = {
     type: "website",
   },
   robots: { index: true, follow: true },
+  manifest: "/manifest.webmanifest",
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }], apple: "/icon.svg" },
+  appleWebApp: { capable: true, title: "Gor Atlas", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
@@ -56,12 +61,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <PreferencesProvider>
-          <a href="#main" className="skip-link">
-            Skip to main content
-          </a>
-          <SiteHeader />
-          <main id="main">{children}</main>
-          <SiteFooter />
+          <LocaleProvider>
+            <a href="#main" className="skip-link">
+              Skip to main content
+            </a>
+            <SiteHeader />
+            <main id="main">{children}</main>
+            <SiteFooter />
+            <ServiceWorker />
+          </LocaleProvider>
         </PreferencesProvider>
       </body>
     </html>

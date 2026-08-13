@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gor Atlas">
+  <rect width="512" height="512" rx="96" fill="#0d0f18"/>
+  <!-- Abstract diamond motif derived from textile geometry; not a reproduction
+       of any specific community's embroidery design. -->
+  <g transform="translate(256 256)">
+    <path d="M0 -150 L110 0 L0 150 L-110 0 Z" fill="none" stroke="#d4674a" stroke-width="18"/>
+    <path d="M0 -80 L60 0 L0 80 L-60 0 Z" fill="none" stroke="#2fb6bf" stroke-width="14"/>
+    <circle cx="0" cy="0" r="20" fill="#c9a227"/>
+  </g>
+</svg>

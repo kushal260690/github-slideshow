@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { Map as MapLibreMap, GeoJSONSource } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import { INDIA_VIEW, STATES } from "@/data/geography";
-import { BASE_LAYERS, MARKER_COLORS, baseStyle, type BaseLayerKey } from "@/lib/mapStyles";
+import { MARKER_COLORS, baseStyle, type BaseLayerKey } from "@/lib/mapStyles";
 
 export interface MapPoint {
   id: string;

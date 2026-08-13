@@ -1,19 +1,23 @@
+"use client";
+
 import Link from "next/link";
-import { LOCALES, PLANNED_LOCALES, getDictionary, untranslatedKeyCount, type LocaleCode } from "@/i18n";
+import { LOCALES, PLANNED_LOCALES, untranslatedKeyCount } from "@/i18n";
+import { useLocale } from "@/components/LocaleProvider";
 import { PreferenceToggles } from "@/components/Preferences";
 import { SearchBox } from "@/components/SearchBox";
 import { TextileRule } from "@/components/ui";
 
 const NAV = [
-  { href: "/map", key: "nav.map" as const, label: "Explore Map" },
-  { href: "/states", key: "nav.tandas" as const, label: "Tandas" },
-  { href: "/clans", key: "nav.clans" as const, label: "Clans & Surnames" },
-  { href: "/migration", key: "nav.history" as const, label: "History" },
-  { href: "/encyclopedia", key: "nav.encyclopedia" as const, label: "Encyclopedia" },
+  { href: "/map", key: "map" as const },
+  { href: "/states", key: "tandas" as const },
+  { href: "/clans", key: "clans" as const },
+  { href: "/migration", key: "history" as const },
+  { href: "/encyclopedia", key: "encyclopedia" as const },
 ];
 
-export function SiteHeader({ locale = "en" as LocaleCode }: { locale?: LocaleCode }) {
-  const dict = getDictionary(locale);
+export function SiteHeader() {
+  const { dict } = useLocale();
+
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface-0/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-2.5 sm:px-6">
@@ -31,7 +35,7 @@ export function SiteHeader({ locale = "en" as LocaleCode }: { locale?: LocaleCod
             {NAV.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="text-muted transition-colors hover:text-peacock">
-                  {dict.nav[item.key.split(".")[1] as keyof typeof dict.nav] ?? item.label}
+                  {dict.nav[item.key]}
                 </Link>
               </li>
             ))}
@@ -43,7 +47,7 @@ export function SiteHeader({ locale = "en" as LocaleCode }: { locale?: LocaleCod
         </div>
 
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          <LanguageSwitcher current={locale} />
+          <LanguageSwitcher />
           <Link
             href="/contribute"
             className="rounded-sm bg-terracotta px-3 py-1.5 text-xs font-semibold text-terracotta-ink transition-opacity hover:opacity-90"
@@ -57,11 +61,13 @@ export function SiteHeader({ locale = "en" as LocaleCode }: { locale?: LocaleCod
   );
 }
 
-function LanguageSwitcher({ current }: { current: LocaleCode }) {
+function LanguageSwitcher() {
+  const { locale, definition, setLocale } = useLocale();
+
   return (
     <details className="relative">
       <summary className="cursor-pointer list-none rounded-sm border border-line px-2 py-1 text-[11px] text-muted hover:border-peacock hover:text-peacock">
-        {LOCALES.find((l) => l.code === current)?.label ?? "English"}
+        {definition.label}
       </summary>
       <div className="absolute right-0 z-50 mt-1 w-72 rounded-lg border border-line-strong bg-surface-1 p-3 shadow-2xl">
         <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-terracotta">
@@ -70,17 +76,25 @@ function LanguageSwitcher({ current }: { current: LocaleCode }) {
         <ul className="space-y-1">
           {LOCALES.map((l) => {
             const missing = untranslatedKeyCount(l.code);
+            const active = l.code === locale;
             return (
               <li key={l.code}>
-                <Link
-                  href={`?lang=${l.code}`}
-                  className={`flex items-baseline justify-between gap-2 rounded-sm px-2 py-1 text-sm hover:bg-surface-2 ${
-                    l.code === current ? "text-peacock" : "text-ink"
+                <button
+                  type="button"
+                  lang={l.code}
+                  aria-current={active}
+                  onClick={(e) => {
+                    setLocale(l.code);
+                    (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute(
+                      "open",
+                    );
+                  }}
+                  className={`flex w-full items-baseline justify-between gap-2 rounded-sm px-2 py-1 text-left text-sm hover:bg-surface-2 ${
+                    active ? "text-peacock" : "text-ink"
                   }`}
                 >
                   <span>
-                    {l.label}{" "}
-                    <span className="text-[11px] text-muted">{l.englishLabel}</span>
+                    {l.label} <span className="text-[11px] text-muted">{l.englishLabel}</span>
                   </span>
                   {l.review === "needs_community_review" ? (
                     <span
@@ -92,13 +106,13 @@ function LanguageSwitcher({ current }: { current: LocaleCode }) {
                       needs review
                     </span>
                   ) : null}
-                </Link>
+                </button>
               </li>
             );
           })}
         </ul>
         <p className="mt-3 border-t border-line pt-2 text-[11px] text-muted">
-          Planned:{" "}
+          Interface strings only — archived content is not machine-translated. Planned:{" "}
           {PLANNED_LOCALES.map((l) => l.englishLabel).join(", ")}. Gor Boli is listed by script
           because orthography varies by region and none is treated as canonical.
         </p>
@@ -107,14 +121,15 @@ function LanguageSwitcher({ current }: { current: LocaleCode }) {
   );
 }
 
-export function SiteFooter({ locale = "en" as LocaleCode }: { locale?: LocaleCode }) {
-  const dict = getDictionary(locale);
+export function SiteFooter() {
+  const { dict } = useLocale();
+
   const columns = [
     {
       title: "Explore",
       links: [
-        { href: "/map", label: "Explore map" },
-        { href: "/directory", label: "Text directory (accessible)" },
+        { href: "/map", label: dict.nav.map },
+        { href: "/directory", label: dict.footer.directory },
         { href: "/states", label: "State directory" },
         { href: "/clans", label: "Clan explorer" },
         { href: "/surnames", label: "Surname explorer" },
@@ -125,7 +140,7 @@ export function SiteFooter({ locale = "en" as LocaleCode }: { locale?: LocaleCod
     {
       title: "Archive",
       links: [
-        { href: "/encyclopedia", label: "Cultural encyclopedia" },
+        { href: "/encyclopedia", label: dict.nav.encyclopedia },
         { href: "/archive", label: "Media archive" },
         { href: "/oral-histories", label: "Oral histories" },
         { href: "/sources", label: dict.footer.sources },
@@ -134,7 +149,7 @@ export function SiteFooter({ locale = "en" as LocaleCode }: { locale?: LocaleCod
     {
       title: "Contribute",
       links: [
-        { href: "/contribute", label: "Document your Tanda" },
+        { href: "/contribute", label: dict.contribute.title },
         { href: "/contribute/status", label: "Track a submission" },
         { href: "/admin", label: "Moderation dashboard" },
       ],
