@@ -17,14 +17,12 @@ import { TANDAS } from "@/data/tandas";
  * records from it, exactly as with an Indian district.
  */
 const REGION_COLORS = [
-  "var(--gor-lac)",
-  "var(--gor-marigold)",
-  "var(--gor-parrot)",
-  "var(--gor-turquoise)",
-  "var(--gor-fuchsia)",
-  "var(--gor-violet)",
-  "var(--gor-amber)",
-  "var(--gor-crimson)",
+  "var(--gor-magenta)",
+  "var(--gor-turmeric)",
+  "var(--gor-peacock)",
+  "var(--gor-vermilion)",
+  "var(--gor-cream)",
+  "var(--gor-cobalt-deep)",
 ];
 
 export function WorldStrip() {
@@ -39,7 +37,7 @@ export function WorldStrip() {
     <section className="gor-wash border-b border-line bg-surface-0">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <Reveal>
-          <h2 className="flex items-center gap-3 font-display text-2xl text-ink-strong">
+          <h2 className="flex items-center gap-3 font-poster text-3xl text-ink-strong">
             <span className="mirror-dot" aria-hidden />
             An atlas of a community, not of a country
           </h2>
@@ -54,11 +52,11 @@ export function WorldStrip() {
           {WORLD_REGIONS.map((r, i) => (
             <Reveal as="li" key={r.id} delay={i * 40}>
               <div
-                className="h-full rounded-lg border border-line bg-surface-1 p-4 transition-transform hover:-translate-y-0.5"
+                className="paper h-full rounded-lg border border-line p-4 transition-transform hover:-translate-y-0.5"
                 style={{ borderLeft: `4px solid ${REGION_COLORS[i % REGION_COLORS.length]}` }}
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <h3 className="font-display text-base text-ink-strong">{r.name}</h3>
+                  <h3 className="font-poster text-lg text-ink-strong">{r.name}</h3>
                   <span className="tabular text-sm text-muted">{counts.get(r.id) ?? 0}</span>
                 </div>
                 <p className="mt-1 text-[11px] text-muted">{r.note}</p>

@@ -20,13 +20,11 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface-0/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-2.5 sm:px-6">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6">
         <Link href="/" className="group flex items-baseline gap-2">
-          <span className="font-display text-lg tracking-tight text-ink-strong">
-            {dict.brand.name}
-          </span>
-          <span className="hidden text-[10px] uppercase tracking-[0.18em] text-gor-marigold sm:inline">
-            Banjara Heritage
+          <span className="font-poster text-xl text-ink-strong">{dict.brand.name}</span>
+          <span className="font-poster-sm hidden text-[10px] text-gor-turmeric xl:inline">
+            Art · Culture · Memory · Maps
           </span>
         </Link>
 
@@ -42,11 +40,11 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="ml-auto hidden min-w-48 max-w-sm flex-1 lg:block">
+        <div className="ml-auto hidden w-44 shrink-0 xl:block">
           <SearchBox size="sm" placeholder={dict.nav.search} />
         </div>
 
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+        <div className="ml-auto flex shrink-0 items-center gap-2 xl:ml-0">
           <LanguageSwitcher />
           <Link
             href="/contribute"

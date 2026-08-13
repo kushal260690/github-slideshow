@@ -56,12 +56,14 @@ export function Reveal({
       return;
     }
 
-    // Anything already on screen, or just below it, is shown at once rather
-    // than animated in. Hiding above-the-fold content behind an observer is
-    // how "invisible until you scroll" bugs happen — and it also breaks
-    // printing, find-in-page and full-page screenshots.
+    // Anything on screen or within the next couple of screens is shown at
+    // once rather than animated in. Hiding content behind an observer is how
+    // "invisible until you scroll" bugs happen, and it also breaks printing,
+    // find-in-page and full-page capture. The window is generous on purpose:
+    // the reveal is a nudge for content the reader scrolls a long way to
+    // reach, not a gate on the top of the page.
     const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 1.25) {
+    if (rect.top < window.innerHeight * 2.5) {
       setShown(true);
       return;
     }

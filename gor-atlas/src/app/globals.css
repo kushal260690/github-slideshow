@@ -7,62 +7,65 @@
 
 :root {
   /* ----------------------------------------------------------------------
-     THE BANJARA PALETTE — decorative layer
+     THE BANJARA PALETTE — seven named colours, taken from the art direction.
 
-     Drawn from what the textiles actually do: saturated lac red, marigold,
-     parrot green and fuchsia stitched dense against an indigo ground, broken
-     up by mirrorwork and cowrie white. These are DECORATIVE tokens. They set
-     the mood of the site and they may be used freely for motifs, bands,
-     section marks, illustration and hero graphics.
+     TURMERIC · HOT MAGENTA · VERMILION · PEACOCK · COBALT · CREAM · MIRROR
 
-     They are deliberately kept in a separate block from the verification
-     colours below, and the two sets never share a value. The rule that makes
-     the brightness safe: if a colour is carrying MEANING about evidence, it
-     comes from the semantic block. If it is carrying mood, it comes from here.
-     A reader must never have to wonder whether a bright colour is telling them
-     something about a record's reliability.
+     Cobalt is the field, not a neutral: the whole system is built as bright
+     embroidery thread laid on a dyed blue ground, which is what the textiles
+     actually do. Cream carries the display type and the paper panels.
+
+     DECORATIVE ONLY. These never indicate anything about evidence — that job
+     belongs to the semantic block below, and the two sets share no values.
      ---------------------------------------------------------------------- */
-  --gor-lac: #e63462;        /* lac red / deep pink */
-  --gor-crimson: #cf1b41;
-  --gor-marigold: #ffb223;   /* saffron / marigold */
-  --gor-amber: #ff8a1f;
-  --gor-parrot: #2fd07a;     /* parrot green */
-  --gor-turquoise: #26d3d3;
-  --gor-fuchsia: #f0409c;
-  --gor-violet: #8f6bff;
-  --gor-indigo: #2a2170;     /* the dye ground */
-  --gor-mirror: #f4f1e8;     /* mirrorwork / cowrie white */
+  --gor-turmeric: #f5c518;
+  --gor-magenta: #ed1e79;
+  --gor-vermilion: #f26522;
+  --gor-peacock: #16a8a0;
+  --gor-cobalt: #0f2a9c;
+  --gor-cobalt-deep: #0a1c6e;
+  --gor-cream: #f4ead5;
+  --gor-mirror: #c7c9ce;
 
-  --ink: #f8f2e6;
-  --ink-strong: #fffdf7;
-  /* Brighter, warmer ground than before: indigo-violet rather than charcoal. */
-  --surface-0: #141123;
-  --surface-1: #1e1935;
-  --surface-2: #292142;
-  --surface-3: #362c53;
-  --indigo: #2a2170;
-  --terracotta: #ff7a4d;
-  --terracotta-ink: #240d05;
-  --peacock: #26d3d3;
-  --gold: #ffc844;
-  --muted: #bdb3c4;
-  --line: #362c53;
-  --line-strong: #55487d;
+  --ink: #f4ead5;
+  --ink-strong: #fffaf0;
+  /* The cobalt field. Panels sit on it; they do not replace it. */
+  --surface-0: #0f2a9c;
+  --surface-1: #14319f;
+  --surface-2: #1b3bb0;
+  --surface-3: #2547c2;
+  --indigo: #0a1c6e;
+  --terracotta: #f26522;
+  --terracotta-ink: #2a0d00;
+  --peacock: #35d6cd;
+  --gold: #f5c518;
+  --muted: #b9c4ee;
+  --line: #2b4ab8;
+  --line-strong: #4d6cd8;
 
   /* ----------------------------------------------------------------------
      Semantic verification colours — meaning-bearing, never decorative.
-     Brightened for the new ground, but the six hues stay distinct from each
-     other AND from the decorative palette above.
+
+     Deliberately pitched away from the decorative seven so the two systems
+     stay legible side by side: the decorative palette owns turmeric, magenta
+     and vermilion, so verification uses mint, amber-gold, slate, sky, lilac
+     and coral instead. Colour is never the only channel — every chip carries
+     its text label and every marker a distinct stroke treatment.
      ---------------------------------------------------------------------- */
-  --v-verified: #35d07f;
-  --v-partial: #ffb627;
-  --v-basic: #a8aec4;
-  --v-historical: #5aa9ff;
-  --v-diaspora: #c07bff;
-  --v-disputed: #ff5f52;
+  --v-verified: #4ade80;
+  --v-partial: #fbbf24;
+  --v-basic: #c7cbe0;
+  --v-historical: #7dd3fc;
+  --v-diaspora: #d8b4fe;
+  --v-disputed: #fb7185;
 
   --font-display: ui-serif, "Iowan Old Style", "Source Serif 4", "Palatino Linotype",
     Georgia, serif;
+  /* Poster display: heavy, condensed, uppercase. Used for the hero and
+     section headings, where the art direction calls for a printed-poster
+     voice rather than an editorial one. */
+  --font-poster: "Archivo Narrow", "Roboto Condensed", "Helvetica Neue Condensed",
+    ui-sans-serif, "Inter", system-ui, sans-serif;
   --font-ui: ui-sans-serif, "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
     "Noto Sans", sans-serif;
   --font-indic: "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Kannada",
@@ -75,39 +78,68 @@
   color-scheme: dark;
 }
 
-[data-theme="light"] {
-  --ink: #1a1526;
-  --ink-strong: #0a0710;
-  /* Warm parchment, lifted brighter and given a little colour of its own. */
-  --surface-0: #fff8ec;
-  --surface-1: #fdefd9;
-  --surface-2: #f7e2c2;
-  --surface-3: #efd3a9;
-  --terracotta: #d1462a;
+/* --------------------------------------------------------------------------
+   Cream paper panel.
+
+   Re-declares the surface and ink tokens for its own subtree, so any existing
+   component dropped inside renders as dark-on-cream without being rewritten.
+   This is how the art direction's cream cards on a cobalt field are achieved
+   without forking every component into a light variant.
+   -------------------------------------------------------------------------- */
+.paper {
+  --surface-0: #ece0c6;
+  --surface-1: #f4ead5;
+  --surface-2: #e8dabc;
+  --surface-3: #dccaa4;
+  --ink: #10205e;
+  --ink-strong: #0a1440;
+  --muted: #4f5570;
+  --line: #d9c9a6;
+  --line-strong: #b49f74;
+  --terracotta: #d2470b;
   --terracotta-ink: #ffffff;
-  --peacock: #0a8f97;
-  --gold: #a8760d;
-  --muted: #5f5168;
-  --line: #e6ceac;
-  --line-strong: #c8a878;
+  --peacock: #0c7b74;
+  --gold: #9a7405;
+  --v-verified: #16794a;
+  --v-partial: #8a5d05;
+  --v-basic: #4f5570;
+  --v-historical: #1c56a5;
+  --v-diaspora: #6b2fae;
+  --v-disputed: #b3243a;
+  background-color: var(--surface-1);
+  color: var(--ink);
+}
 
-  --gor-lac: #c8123f;
-  --gor-crimson: #a5062f;
-  --gor-marigold: #e08700;
-  --gor-amber: #d96b06;
-  --gor-parrot: #12894c;
-  --gor-turquoise: #0a8f97;
-  --gor-fuchsia: #c41b76;
-  --gor-violet: #6539d8;
-  --gor-indigo: #2a2170;
-  --gor-mirror: #ffffff;
+[data-theme="light"] {
+  --ink: #10205e;
+  --ink-strong: #060d33;
+  --surface-0: #f7efdc;
+  --surface-1: #ffffff;
+  --surface-2: #f0e4c9;
+  --surface-3: #e4d3ac;
+  --terracotta: #d2470b;
+  --terracotta-ink: #ffffff;
+  --peacock: #0c7b74;
+  --gold: #9a7405;
+  --muted: #4f5570;
+  --line: #ddcdaa;
+  --line-strong: #b49f74;
 
-  --v-verified: #17804a;
-  --v-partial: #96650a;
-  --v-basic: #55596b;
-  --v-historical: #1f56a8;
-  --v-diaspora: #6a30b0;
-  --v-disputed: #b32718;
+  --gor-turmeric: #c99a00;
+  --gor-magenta: #c50f62;
+  --gor-vermilion: #d2470b;
+  --gor-peacock: #0c7b74;
+  --gor-cobalt: #0f2a9c;
+  --gor-cobalt-deep: #0a1c6e;
+  --gor-cream: #f4ead5;
+  --gor-mirror: #8b8f9c;
+
+  --v-verified: #16794a;
+  --v-partial: #8a5d05;
+  --v-basic: #4f5570;
+  --v-historical: #1c56a5;
+  --v-diaspora: #6b2fae;
+  --v-disputed: #b3243a;
 }
 
 /* Manual high-contrast mode (WCAG 2.2 AA+, doc 06 §8) */
@@ -162,18 +194,17 @@
   --color-v-diaspora: var(--v-diaspora);
   --color-v-disputed: var(--v-disputed);
 
-  --color-gor-lac: var(--gor-lac);
-  --color-gor-crimson: var(--gor-crimson);
-  --color-gor-marigold: var(--gor-marigold);
-  --color-gor-amber: var(--gor-amber);
-  --color-gor-parrot: var(--gor-parrot);
-  --color-gor-turquoise: var(--gor-turquoise);
-  --color-gor-fuchsia: var(--gor-fuchsia);
-  --color-gor-violet: var(--gor-violet);
-  --color-gor-indigo: var(--gor-indigo);
+  --color-gor-turmeric: var(--gor-turmeric);
+  --color-gor-magenta: var(--gor-magenta);
+  --color-gor-vermilion: var(--gor-vermilion);
+  --color-gor-peacock: var(--gor-peacock);
+  --color-gor-cobalt: var(--gor-cobalt);
+  --color-gor-cobalt-deep: var(--gor-cobalt-deep);
+  --color-gor-cream: var(--gor-cream);
   --color-gor-mirror: var(--gor-mirror);
 
   --font-display: var(--font-display);
+  --font-poster: var(--font-poster);
   --font-ui: var(--font-ui);
 }
 
@@ -217,6 +248,24 @@ h1, h2, h3, .font-display {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: -0.01em;
+}
+
+/* Poster voice: heavy, tight, uppercase. Used for the hero and major section
+   headings. Long-form article prose keeps the serif, because a condensed
+   uppercase face is a headline tool and punishing to read at length. */
+.font-poster {
+  font-family: var(--font-poster);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  line-height: 0.95;
+  font-stretch: 87.5%;
+}
+.font-poster-sm {
+  font-family: var(--font-poster);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 table, .tabular {
@@ -270,51 +319,59 @@ table, .tabular {
   height: 10px;
   width: 100%;
   background-image:
-    linear-gradient(135deg, var(--gor-lac) 25%, transparent 25%),
-    linear-gradient(225deg, var(--gor-marigold) 25%, transparent 25%),
-    linear-gradient(45deg, var(--gor-turquoise) 25%, transparent 25%),
-    linear-gradient(315deg, var(--gor-parrot) 25%, transparent 25%);
+    linear-gradient(135deg, var(--gor-magenta) 25%, transparent 25%),
+    linear-gradient(225deg, var(--gor-turmeric) 25%, transparent 25%),
+    linear-gradient(45deg, var(--gor-peacock) 25%, transparent 25%),
+    linear-gradient(315deg, var(--gor-vermilion) 25%, transparent 25%);
   background-position: 0 0, 10px 0, 10px -10px, 0 10px;
   background-size: 20px 20px;
   background-repeat: repeat-x;
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
-/* The full band: diamonds, mirrors and chevrons, five colours deep. */
+/* The cross-stitch band: diamonds and mirrors in the seven, on cream. */
 .textile-band {
-  height: 22px;
+  height: 24px;
   width: 100%;
   background-repeat: repeat-x;
-  background-size: auto 22px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='22' viewBox='0 0 120 22'%3E%3Crect width='120' height='22' fill='%232a2170'/%3E%3Cg%3E%3Cpath d='M12 3 L19 11 L12 19 L5 11 Z' fill='%23e63462'/%3E%3Cpath d='M36 3 L43 11 L36 19 L29 11 Z' fill='%23ffb223'/%3E%3Cpath d='M60 3 L67 11 L60 19 L53 11 Z' fill='%232fd07a'/%3E%3Cpath d='M84 3 L91 11 L84 19 L77 11 Z' fill='%23f0409c'/%3E%3Cpath d='M108 3 L115 11 L108 19 L101 11 Z' fill='%2326d3d3'/%3E%3C/g%3E%3Cg fill='%23f4f1e8'%3E%3Ccircle cx='24' cy='11' r='2.2'/%3E%3Ccircle cx='48' cy='11' r='2.2'/%3E%3Ccircle cx='72' cy='11' r='2.2'/%3E%3Ccircle cx='96' cy='11' r='2.2'/%3E%3Ccircle cx='0' cy='11' r='2.2'/%3E%3C/g%3E%3Cg stroke='%23ffb223' stroke-width='1' fill='none' opacity='0.55'%3E%3Cpath d='M0 1 H120 M0 21 H120'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='24' viewBox='0 0 132 24'%3E%3Crect width='132' height='24' fill='%23f4ead5'/%3E%3Cg%3E%3Cpath d='M13 4 L21 12 L13 20 L5 12 Z' fill='%23ed1e79'/%3E%3Cpath d='M39 4 L47 12 L39 20 L31 12 Z' fill='%23f5c518'/%3E%3Cpath d='M65 4 L73 12 L65 20 L57 12 Z' fill='%2316a8a0'/%3E%3Cpath d='M91 4 L99 12 L91 20 L83 12 Z' fill='%23f26522'/%3E%3Cpath d='M117 4 L125 12 L117 20 L109 12 Z' fill='%230f2a9c'/%3E%3C/g%3E%3Cg fill='none' stroke='%230f2a9c' stroke-width='1.4'%3E%3Cpath d='M26 12 l4 -4 l4 4 l-4 4 Z'/%3E%3Cpath d='M52 12 l4 -4 l4 4 l-4 4 Z'/%3E%3Cpath d='M78 12 l4 -4 l4 4 l-4 4 Z'/%3E%3Cpath d='M104 12 l4 -4 l4 4 l-4 4 Z'/%3E%3Cpath d='M0 12 l4 -4 l4 4 l-4 4 Z'/%3E%3C/g%3E%3Cg stroke='%23ed1e79' stroke-width='1.2' opacity='0.7'%3E%3Cpath d='M0 1.5 H132 M0 22.5 H132'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Vertical cross-stitch strip, for page edges. */
+.stitch-edge {
+  width: 22px;
+  background-repeat: repeat-y;
+  background-size: 22px auto;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='120' viewBox='0 0 22 120'%3E%3Crect width='22' height='120' fill='%23f4ead5'/%3E%3Cg%3E%3Cpath d='M11 4 L18 12 L11 20 L4 12 Z' fill='%23ed1e79'/%3E%3Cpath d='M11 28 L18 36 L11 44 L4 36 Z' fill='%23f5c518'/%3E%3Cpath d='M11 52 L18 60 L11 68 L4 60 Z' fill='%2316a8a0'/%3E%3Cpath d='M11 76 L18 84 L11 92 L4 84 Z' fill='%23f26522'/%3E%3Cpath d='M11 100 L18 108 L11 116 L4 108 Z' fill='%230f2a9c'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 .textile-rule-gold {
   height: 3px;
   background-image: repeating-linear-gradient(
     90deg,
-    var(--gold) 0 6px,
+    var(--gor-turmeric) 0 6px,
     transparent 6px 12px
   );
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-/* Mirrorwork dot — used as a section mark and as a list bullet. */
+/* Mirrorwork disc — section mark and list bullet. */
 .mirror-dot {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
-  background: radial-gradient(circle at 35% 30%, var(--gor-mirror), #9aa0b5 70%);
-  box-shadow: 0 0 0 2px var(--gor-lac), 0 0 8px color-mix(in srgb, var(--gor-marigold) 60%, transparent);
+  background: radial-gradient(circle at 35% 30%, #ffffff, var(--gor-mirror) 70%);
+  box-shadow: 0 0 0 2.5px var(--gor-magenta), 0 0 10px color-mix(in srgb, var(--gor-turmeric) 70%, transparent);
 }
 
-/* A warm, saturated wash used behind hero and feature sections. */
+/* Warm wash for hero and feature sections. */
 .gor-wash {
   background-image:
-    radial-gradient(60% 55% at 12% 10%, color-mix(in srgb, var(--gor-fuchsia) 22%, transparent), transparent 70%),
-    radial-gradient(55% 50% at 88% 8%, color-mix(in srgb, var(--gor-turquoise) 20%, transparent), transparent 70%),
-    radial-gradient(70% 60% at 50% 105%, color-mix(in srgb, var(--gor-marigold) 18%, transparent), transparent 75%);
+    radial-gradient(60% 55% at 10% 8%, color-mix(in srgb, var(--gor-magenta) 26%, transparent), transparent 70%),
+    radial-gradient(55% 50% at 90% 6%, color-mix(in srgb, var(--gor-peacock) 24%, transparent), transparent 70%),
+    radial-gradient(70% 60% at 50% 104%, color-mix(in srgb, var(--gor-turmeric) 22%, transparent), transparent 75%);
 }
 
 /* Archival paper grain, ≤5% opacity, never behind body copy */

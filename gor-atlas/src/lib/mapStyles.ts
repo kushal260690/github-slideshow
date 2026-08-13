@@ -98,11 +98,11 @@ export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
     // Atmosphere around the globe's limb. Purely spatial cueing — it tells the
     // eye that the surface curves away, which is the whole point of the globe.
     sky: {
-      // Indigo dye ground with a warm marigold horizon — the two colours that
-      // sit under everything else in Banjara textile.
-      "sky-color": "#140f33",
-      "horizon-color": "#7a3f8c",
-      "fog-color": "#241a4a",
+      // Cobalt field with a turmeric horizon — the two colours the whole
+      // system is built on.
+      "sky-color": "#0a1c6e",
+      "horizon-color": "#c98a12",
+      "fog-color": "#1b3ec4",
       "fog-ground-blend": 0.6,
       "horizon-fog-blend": 0.5,
       "sky-horizon-blend": 0.8,
@@ -115,7 +115,9 @@ export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
         // Visible if tiles fail to load, so markers still read against a
         // deliberate ground rather than white. On the globe this doubles as
         // the planet's body colour.
-        paint: { "background-color": "#241c4d" },
+        // Deliberately DEEPER than the page's cobalt field: with both the same
+        // value the sphere disappeared and only its rim survived.
+        paint: { "background-color": "#0a1c6e" },
       },
       {
         id: "base",
@@ -123,10 +125,11 @@ export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
         source: "base",
         paint: {
           "raster-opacity": key === "satellite" ? 1 : 0.9,
-          // Was desaturated to keep the old austere look; now the basemap is
-          // allowed a little life of its own without competing with markers.
-          "raster-saturation": key === "satellite" ? 0 : -0.1,
-          "raster-contrast": key === "satellite" ? 0 : 0.05,
+          "raster-saturation": key === "satellite" ? 0 : 0.15,
+          "raster-contrast": key === "satellite" ? 0 : 0.08,
+          // Warms the basemap towards turmeric so land reads gold against the
+          // cobalt field, as in the art direction.
+          "raster-hue-rotate": key === "satellite" ? 0 : -12,
         },
       },
     ],
@@ -135,14 +138,14 @@ export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
 
 /** Marker colours, matching src/lib/format.ts markerState and the legend. */
 export const MARKER_COLORS: Record<string, string> = {
-  verified: "#35d07f",
-  partial: "#ffb627",
-  basic: "#a8aec4",
-  historical: "#5aa9ff",
-  diaspora: "#c07bff",
-  disputed: "#ff5f52",
+  verified: "#4ade80",
+  partial: "#fbbf24",
+  basic: "#c7cbe0",
+  historical: "#7dd3fc",
+  diaspora: "#d8b4fe",
+  disputed: "#fb7185",
   /** Not a settlement state — a region open for documentation. */
-  region: "#26d3d3",
+  region: "#f5c518",
 };
 
 export const MARKER_LEGEND = [

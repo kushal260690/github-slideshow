@@ -11,9 +11,10 @@ quiet gallery wall. That was the wrong call for this subject. Banjara material c
 chromatically extraordinary, and an archive of it rendered in greys reads as an outsider's
 view of the community — respectful in intention, drained in effect.
 
-The system now runs an **indigo dye ground with the full embroidery palette on top**:
-lac red, marigold, parrot green, turquoise and fuchsia, broken by mirrorwork white. The
-discipline moved from "use little colour" to "keep two colour systems apart".
+The system now runs a **cobalt field with bright embroidery thread laid on it** — which is
+what the textiles actually do. Cobalt is not a neutral here; it is the dyed ground. Cream
+carries the display type and the paper panels, and the discipline moved from "use little
+colour" to "keep two colour systems apart".
 
 ## 2. Two colour systems, never mixed
 
@@ -28,20 +29,24 @@ The two sets share no values, and a decorative colour is never used to indicate 
 about reliability. A reader must never have to wonder whether a bright colour is telling
 them something about a record's evidence.
 
-### The Banjara palette (decorative)
+### The seven named colours (decorative)
 
-| Token | Dark | Light |
-| --- | --- | --- |
-| `--gor-lac` | `#e63462` | `#c8123f` |
-| `--gor-crimson` | `#cf1b41` | `#a5062f` |
-| `--gor-marigold` | `#ffb223` | `#e08700` |
-| `--gor-amber` | `#ff8a1f` | `#d96b06` |
-| `--gor-parrot` | `#2fd07a` | `#12894c` |
-| `--gor-turquoise` | `#26d3d3` | `#0a8f97` |
-| `--gor-fuchsia` | `#f0409c` | `#c41b76` |
-| `--gor-violet` | `#8f6bff` | `#6539d8` |
-| `--gor-indigo` | `#2a2170` | `#2a2170` |
-| `--gor-mirror` | `#f4f1e8` | `#ffffff` |
+| Name | Token | Dark | Light |
+| --- | --- | --- | --- |
+| Turmeric | `--gor-turmeric` | `#f5c518` | `#c99a00` |
+| Hot magenta | `--gor-magenta` | `#ed1e79` | `#c50f62` |
+| Vermilion | `--gor-vermilion` | `#f26522` | `#d2470b` |
+| Peacock | `--gor-peacock` | `#16a8a0` | `#0c7b74` |
+| Cobalt | `--gor-cobalt` | `#0f2a9c` | `#0f2a9c` |
+| Cream | `--gor-cream` | `#f4ead5` | `#f4ead5` |
+| Mirror silver | `--gor-mirror` | `#c7c9ce` | `#8b8f9c` |
+
+### `.paper` — the cream panel
+
+The art direction sets cream cards on the cobalt field. Rather than fork every component
+into a light variant, `.paper` re-declares the surface, ink, line and semantic tokens for
+its own subtree. Any existing component dropped inside renders dark-on-cream unchanged.
+Used for stat tiles, world-region cards, the featured Tanda and article cards.
 
 ## 3. Base tokens
 

@@ -344,6 +344,51 @@ export function TextileRule({
   return <div aria-hidden className={cls} />;
 }
 
+/**
+ * Circular maker's stamp, in the manner of a rubber-stamped archive mark.
+ * Text is set on a path so it curves with the roundel.
+ */
+export function Stamp({ size = 96 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      role="img"
+      aria-label="Gor Atlas — every Tanda has a story"
+      className="shrink-0"
+    >
+      <defs>
+        <path id="stamp-arc-top" d="M50 50 m -38 0 a 38 38 0 1 1 76 0" fill="none" />
+        <path id="stamp-arc-bottom" d="M50 50 m 34 0 a 34 34 0 1 1 -68 0" fill="none" />
+      </defs>
+      <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="2" />
+      <circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" strokeWidth="0.8" />
+      <text fill="currentColor" fontSize="10.5" fontWeight="700" letterSpacing="2.4">
+        <textPath href="#stamp-arc-top" startOffset="50%" textAnchor="middle">
+          GOR ATLAS
+        </textPath>
+      </text>
+      <text fill="currentColor" fontSize="7" fontWeight="600" letterSpacing="1.6">
+        <textPath href="#stamp-arc-bottom" startOffset="50%" textAnchor="middle">
+          EVERY TANDA HAS A STORY
+        </textPath>
+      </text>
+      {/* Abstract caravan mark: bullock, cart, traveller */}
+      <g stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round">
+        <path d="M32 56 h16 l6 -7 h8" />
+        <circle cx="38" cy="60" r="3.2" />
+        <circle cx="52" cy="60" r="3.2" />
+        <path d="M60 49 l5 3 l-3 5" />
+        <path d="M28 52 v-5 M28 47 l5 -3" />
+      </g>
+      <g fill="currentColor">
+        <circle cx="50" cy="27" r="1.6" />
+      </g>
+    </svg>
+  );
+}
+
 /** Mirrorwork dot, used as a section mark. */
 export function MirrorDot({ className = "" }: { className?: string }) {
   return <span aria-hidden className={`mirror-dot ${className}`} />;
@@ -351,12 +396,12 @@ export function MirrorDot({ className = "" }: { className?: string }) {
 
 /** Decorative accent cycle. Carries no meaning — purely visual rhythm. */
 const ACCENTS = [
-  "var(--gor-lac)",
-  "var(--gor-marigold)",
-  "var(--gor-parrot)",
-  "var(--gor-turquoise)",
-  "var(--gor-fuchsia)",
-  "var(--gor-violet)",
+  "var(--gor-magenta)",
+  "var(--gor-turmeric)",
+  "var(--gor-peacock)",
+  "var(--gor-vermilion)",
+  "var(--gor-cream)",
+  "var(--gor-cobalt-deep)",
 ];
 let accentCursor = 0;
 
@@ -385,7 +430,7 @@ export function SectionCard({
     >
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="flex items-center gap-2 font-display text-xl text-ink-strong">
+          <h2 className="flex items-center gap-2 font-poster text-2xl text-ink-strong">
             <span
               aria-hidden
               className="inline-block h-3 w-3 rotate-45"
@@ -420,12 +465,12 @@ export function PageHeader({
       <TextileRule variant="band" />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         {eyebrow ? (
-          <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gor-marigold">
+          <p className="font-poster-sm mb-2 flex items-center gap-2 text-xs text-gor-turmeric">
             <MirrorDot />
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="font-display text-3xl text-ink-strong sm:text-4xl">{title}</h1>
+        <h1 className="font-poster text-4xl text-ink-strong sm:text-6xl">{title}</h1>
         {standfirst ? (
           <p className="mt-3 max-w-3xl text-base text-muted sm:text-lg">{standfirst}</p>
         ) : null}
@@ -452,7 +497,7 @@ export function Stat({
     tone === "demo" ? "var(--v-disputed)" : tone === "gold" ? "var(--gold)" : "var(--ink-strong)";
   const inner = (
     <>
-      <div className="tabular font-display text-3xl" style={{ color }}>
+      <div className="tabular font-poster text-4xl" style={{ color }}>
         {value}
       </div>
       <div className="mt-1 text-sm text-ink">{label}</div>
@@ -460,7 +505,7 @@ export function Stat({
     </>
   );
   const className =
-    "block rounded-lg border border-line bg-surface-1 p-4 transition-colors hover:bg-surface-2";
+    "paper block rounded-lg border border-line p-4 transition-transform hover:-translate-y-0.5";
   return href ? (
     <Link href={href} className={className}>
       {inner}

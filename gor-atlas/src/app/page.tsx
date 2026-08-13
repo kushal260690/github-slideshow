@@ -20,12 +20,12 @@ import {
 
 /** Decorative rotation for article cards. Carries no meaning. */
 const ART_COLORS = [
-  "var(--gor-lac)",
-  "var(--gor-marigold)",
-  "var(--gor-parrot)",
-  "var(--gor-turquoise)",
-  "var(--gor-fuchsia)",
-  "var(--gor-violet)",
+  "var(--gor-magenta)",
+  "var(--gor-turmeric)",
+  "var(--gor-peacock)",
+  "var(--gor-vermilion)",
+  "var(--gor-cream)",
+  "var(--gor-cobalt-deep)",
 ];
 
 export default function HomePage() {
@@ -55,7 +55,7 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section className="border-b border-line bg-surface-1">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-          <h2 className="mb-1 flex items-center gap-3 font-display text-2xl text-ink-strong">
+          <h2 className="mb-1 flex items-center gap-3 font-poster text-3xl text-ink-strong">
             <span className="mirror-dot" aria-hidden />
             Where the archive stands
           </h2>
@@ -113,7 +113,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="font-display text-2xl text-ink-strong">The interactive map</h2>
+              <h2 className="font-poster text-3xl text-ink-strong">The interactive map</h2>
               <p className="mt-1 max-w-2xl text-sm text-muted">
                 Zoom from country to Tanda, filter by clan, period, population and verification
                 status, and switch between standard, satellite, terrain and archival views.
@@ -150,12 +150,12 @@ export default function HomePage() {
       <section className="border-b border-line bg-surface-1">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2">
           <div>
-            <h2 className="font-display text-2xl text-ink-strong">Featured Tanda</h2>
+            <h2 className="font-poster text-3xl text-ink-strong">Featured Tanda</h2>
             <p className="mt-1 text-sm text-muted">
               A profile template shown with demonstration data, so you can see the structure a real
               record will carry.
             </p>
-            <article className="mt-4 rounded-lg border border-line bg-surface-0 p-5">
+            <article className="paper mt-4 rounded-lg border border-line p-5 shadow-lg">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-display text-xl text-ink-strong">{featured.primaryName}</h3>
                 {featured.isDemo ? <DemoChip /> : null}
@@ -202,7 +202,7 @@ export default function HomePage() {
           </div>
 
           <div>
-            <h2 className="font-display text-2xl text-ink-strong">Clans and surnames</h2>
+            <h2 className="font-poster text-3xl text-ink-strong">Clans and surnames</h2>
             <p className="mt-1 text-sm text-muted">
               Names as names. Not a genealogy, not a ranking, and never a way to infer anything
               about an individual.
@@ -244,7 +244,7 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section className="border-b border-line">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-          <h2 className="font-display text-2xl text-ink-strong">The migration story</h2>
+          <h2 className="font-poster text-3xl text-ink-strong">The migration story</h2>
           <p className="mt-1 max-w-3xl text-sm text-muted">
             Movement is the part of this history most often stated with false confidence. Every
             route here carries several evidence entries with different labels, and they are shown
@@ -286,7 +286,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="font-display text-2xl text-ink-strong">Cultural archive</h2>
+              <h2 className="font-poster text-3xl text-ink-strong">Cultural archive</h2>
               <p className="mt-1 max-w-2xl text-sm text-muted">
                 Editorial drafts, each marked as such. Nothing here has been checked against its
                 sources by a named reviewer yet.
@@ -301,7 +301,7 @@ export default function HomePage() {
               <Reveal key={a.id} delay={i * 40}>
               <Link
                 href={`/encyclopedia/${a.slug}`}
-                className="group rounded-lg border border-line bg-surface-0 p-5 transition-colors hover:border-peacock"
+                className="paper group rounded-lg border border-line p-5 transition-all hover:-translate-y-0.5 hover:border-gor-magenta"
               >
                 <p
                   className="text-[11px] uppercase tracking-wider"
@@ -328,7 +328,7 @@ export default function HomePage() {
         <TextileRule variant="gold" />
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <h2 className="font-display text-2xl text-ink-strong">
+            <h2 className="font-poster text-3xl text-ink-strong">
               This archive is built by the community
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-muted">

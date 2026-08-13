@@ -45,7 +45,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               { label: article.section },
             ]}
           />
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gor-marigold">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gor-turmeric">
             {article.section}
           </p>
           <h1 className="mt-2 font-display text-3xl text-ink-strong sm:text-4xl">

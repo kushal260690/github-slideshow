@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale } from "@/components/LocaleProvider";
 import { SearchBox } from "@/components/SearchBox";
+import { Stamp } from "@/components/ui";
 
 /**
  * The homepage hero text, in the interface language.
@@ -16,10 +17,11 @@ export function HeroCopy() {
 
   return (
     <div className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 sm:py-28">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-terracotta">
-        {dict.brand.tagline}
-      </p>
-      <h1 className="font-display text-4xl leading-tight text-ink-strong sm:text-6xl">
+      <div className="mb-5 flex items-center justify-center gap-4 text-gor-turmeric">
+        <Stamp size={78} />
+      </div>
+      <p className="font-poster-sm mb-4 text-xs text-gor-turmeric">{dict.brand.tagline}</p>
+      <h1 className="font-poster text-6xl text-ink-strong sm:text-8xl">
         {dict.home.headline}
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg">
