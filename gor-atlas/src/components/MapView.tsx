@@ -209,7 +209,11 @@ export function MapView({
       type: "symbol",
       source: "tandas",
       filter: ["has", "point_count"],
-      layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 12 },
+      layout: {
+        "text-field": ["get", "point_count_abbreviated"],
+        "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+        "text-size": 12,
+      },
       paint: { "text-color": "#f2ece1" },
     });
 
@@ -275,6 +279,7 @@ export function MapView({
       layout: {
         visibility: "none",
         "text-field": ["get", "name"],
+        "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
         "text-size": 11,
         "text-letter-spacing": 0.12,
         "text-transform": "uppercase",

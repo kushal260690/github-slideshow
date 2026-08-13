@@ -144,7 +144,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Indic scripts need more vertical room at the same optical size */
+/* Indic scripts need more vertical room at the same optical size.
+
+   KNOWN GAP: the families below are referenced but not shipped. On a device
+   without Noto Sans Devanagari / Telugu / Kannada installed, Hindi, Marathi,
+   Telugu and Kannada fall back to a system default and can render as unshaped
+   or bitmap glyphs. For an archive whose audience reads these scripts that is
+   not an acceptable production state — the fix is to self-host subsetted
+   woff2 files and declare @font-face with `font-display: swap`, rather than
+   trusting that the reader's device happens to have them. Self-hosting also
+   keeps the site working on a restricted network and avoids a third-party
+   font CDN seeing every reader's request. */
 :lang(hi), :lang(mr), :lang(te), :lang(kn) {
   font-family: var(--font-indic), var(--font-ui);
   line-height: 1.7;

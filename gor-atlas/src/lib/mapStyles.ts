@@ -65,8 +65,13 @@ export function baseStyle(key: BaseLayerKey): StyleSpecification {
   const layer = BASE_LAYERS[key];
   return {
     version: 8,
-    // A local glyph-free style: no external font server is contacted, so the
-    // map still renders where outbound requests are restricted.
+    // MapLibre cannot render ANY text in a symbol layer without a glyph
+    // source — cluster counts and administrative labels fail silently without
+    // this line. The endpoint is MapLibre's own open font server; it is the
+    // only external font dependency and is swappable for a self-hosted set of
+    // .pbf ranges, which is what a production deployment should do so the map
+    // keeps working on a restricted network.
+    glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       base: {
         type: "raster",
