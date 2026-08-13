@@ -80,8 +80,8 @@ export default async function TandaProfile({ params }: { params: Promise<{ id: s
       {/* ---------------------------------------------------------------- */}
       {/* Identity header                                                  */}
       {/* ---------------------------------------------------------------- */}
-      <header className="paper-grain border-b border-line bg-surface-1">
-        <TextileRule />
+      <header className="paper-grain gor-wash border-b border-line bg-surface-1">
+        <TextileRule variant="band" />
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <Breadcrumbs
             items={[

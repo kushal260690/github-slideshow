@@ -98,9 +98,11 @@ export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
     // Atmosphere around the globe's limb. Purely spatial cueing — it tells the
     // eye that the surface curves away, which is the whole point of the globe.
     sky: {
-      "sky-color": "#0b1020",
-      "horizon-color": "#1b1f3b",
-      "fog-color": "#0d0f18",
+      // Indigo dye ground with a warm marigold horizon — the two colours that
+      // sit under everything else in Banjara textile.
+      "sky-color": "#140f33",
+      "horizon-color": "#7a3f8c",
+      "fog-color": "#241a4a",
       "fog-ground-blend": 0.6,
       "horizon-fog-blend": 0.5,
       "sky-horizon-blend": 0.8,
@@ -113,16 +115,18 @@ export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
         // Visible if tiles fail to load, so markers still read against a
         // deliberate ground rather than white. On the globe this doubles as
         // the planet's body colour.
-        paint: { "background-color": "#12151f" },
+        paint: { "background-color": "#241c4d" },
       },
       {
         id: "base",
         type: "raster",
         source: "base",
         paint: {
-          "raster-opacity": key === "satellite" ? 1 : 0.86,
-          "raster-saturation": key === "satellite" ? 0 : -0.35,
-          "raster-contrast": key === "satellite" ? 0 : -0.05,
+          "raster-opacity": key === "satellite" ? 1 : 0.9,
+          // Was desaturated to keep the old austere look; now the basemap is
+          // allowed a little life of its own without competing with markers.
+          "raster-saturation": key === "satellite" ? 0 : -0.1,
+          "raster-contrast": key === "satellite" ? 0 : 0.05,
         },
       },
     ],
@@ -131,14 +135,14 @@ export function baseStyle(key: BaseLayerKey, globe = true): StyleSpecification {
 
 /** Marker colours, matching src/lib/format.ts markerState and the legend. */
 export const MARKER_COLORS: Record<string, string> = {
-  verified: "#3ab36a",
-  partial: "#d99a1f",
-  basic: "#9096a5",
-  historical: "#5a95e0",
-  diaspora: "#a077d6",
-  disputed: "#e05a42",
+  verified: "#35d07f",
+  partial: "#ffb627",
+  basic: "#a8aec4",
+  historical: "#5aa9ff",
+  diaspora: "#c07bff",
+  disputed: "#ff5f52",
   /** Not a settlement state — a region open for documentation. */
-  region: "#2fb6bf",
+  region: "#26d3d3",
 };
 
 export const MARKER_LEGEND = [

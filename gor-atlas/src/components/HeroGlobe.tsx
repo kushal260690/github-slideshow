@@ -59,7 +59,7 @@ export function HeroGlobe() {
         id: r.id,
         name: r.name,
         coordinates: r.waypoints.map((w) => w.coordinates),
-        color: i === 0 ? "#d4674a" : "#2fb6bf",
+        color: i === 0 ? "#ff8a1f" : "#f0409c",
       })),
     [],
   );
@@ -75,15 +75,15 @@ export function HeroGlobe() {
         interactive={false}
         globe
         autoSpin
-        initialZoom={1.35}
-        className="h-full w-full opacity-70"
+        initialZoom={2.15}
+        className="h-full w-full opacity-90"
       />
       {/* Vignette so the headline keeps its contrast over any part of the globe */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 90% at 50% 45%, transparent 30%, var(--surface-0) 78%)",
+            "radial-gradient(130% 100% at 50% 48%, transparent 46%, color-mix(in srgb, var(--surface-0) 75%, transparent) 74%, var(--surface-0) 96%)",
         }}
       />
     </div>
@@ -108,8 +108,8 @@ function StaticGlobe() {
       <svg viewBox="0 0 400 400" className="h-full w-auto opacity-60">
         <defs>
           <radialGradient id="limb" cx="40%" cy="35%">
-            <stop offset="0%" stopColor="#1b1f3b" />
-            <stop offset="100%" stopColor="#0b0d16" />
+            <stop offset="0%" stopColor="#3a2a8c" />
+            <stop offset="100%" stopColor="#150f2e" />
           </radialGradient>
         </defs>
         <circle cx="200" cy="200" r="150" fill="url(#limb)" stroke="var(--line-strong)" />

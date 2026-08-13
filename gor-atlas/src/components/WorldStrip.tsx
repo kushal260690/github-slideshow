@@ -16,6 +16,17 @@ import { TANDAS } from "@/data/tandas";
  * Asia. Listing a region asserts only that the archive will accept and review
  * records from it, exactly as with an Indian district.
  */
+const REGION_COLORS = [
+  "var(--gor-lac)",
+  "var(--gor-marigold)",
+  "var(--gor-parrot)",
+  "var(--gor-turquoise)",
+  "var(--gor-fuchsia)",
+  "var(--gor-violet)",
+  "var(--gor-amber)",
+  "var(--gor-crimson)",
+];
+
 export function WorldStrip() {
   const counts = new Map<string, number>();
   for (const t of TANDAS) {
@@ -25,10 +36,11 @@ export function WorldStrip() {
   }
 
   return (
-    <section className="border-b border-line bg-surface-0">
+    <section className="gor-wash border-b border-line bg-surface-0">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <Reveal>
-          <h2 className="font-display text-2xl text-ink-strong">
+          <h2 className="flex items-center gap-3 font-display text-2xl text-ink-strong">
+            <span className="mirror-dot" aria-hidden />
             An atlas of a community, not of a country
           </h2>
           <p className="mt-1 max-w-3xl text-sm text-muted">
@@ -41,7 +53,10 @@ export function WorldStrip() {
         <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {WORLD_REGIONS.map((r, i) => (
             <Reveal as="li" key={r.id} delay={i * 40}>
-              <div className="h-full rounded-lg border border-line bg-surface-1 p-4">
+              <div
+                className="h-full rounded-lg border border-line bg-surface-1 p-4 transition-transform hover:-translate-y-0.5"
+                style={{ borderLeft: `4px solid ${REGION_COLORS[i % REGION_COLORS.length]}` }}
+              >
                 <div className="flex items-baseline justify-between gap-2">
                   <h3 className="font-display text-base text-ink-strong">{r.name}</h3>
                   <span className="tabular text-sm text-muted">{counts.get(r.id) ?? 0}</span>

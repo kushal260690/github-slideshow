@@ -56,6 +56,16 @@ export function Reveal({
       return;
     }
 
+    // Anything already on screen, or just below it, is shown at once rather
+    // than animated in. Hiding above-the-fold content behind an observer is
+    // how "invisible until you scroll" bugs happen — and it also breaks
+    // printing, find-in-page and full-page screenshots.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 1.25) {
+      setShown(true);
+      return;
+    }
+
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -72,6 +82,14 @@ export function Reveal({
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  // Printing must never lose content to an un-fired observer.
+  useEffect(() => {
+    if (!armed || shown) return;
+    const before = () => setShown(true);
+    window.addEventListener("beforeprint", before);
+    return () => window.removeEventListener("beforeprint", before);
+  }, [armed, shown]);
 
   const hidden = armed && !shown;
 

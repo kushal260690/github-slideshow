@@ -25,7 +25,7 @@ export function SiteHeader() {
           <span className="font-display text-lg tracking-tight text-ink-strong">
             {dict.brand.name}
           </span>
-          <span className="hidden text-[10px] uppercase tracking-[0.18em] text-terracotta sm:inline">
+          <span className="hidden text-[10px] uppercase tracking-[0.18em] text-gor-marigold sm:inline">
             Banjara Heritage
           </span>
         </Link>
@@ -56,7 +56,7 @@ export function SiteHeader() {
           </Link>
         </div>
       </div>
-      <TextileRule />
+      <TextileRule variant="band" />
     </header>
   );
 }
@@ -168,7 +168,7 @@ export function SiteFooter() {
 
   return (
     <footer className="mt-16 border-t border-line bg-surface-1">
-      <TextileRule />
+      <TextileRule variant="band" />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-1">

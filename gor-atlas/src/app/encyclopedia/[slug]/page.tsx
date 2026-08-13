@@ -36,8 +36,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
-      <header className="paper-grain border-b border-line bg-surface-1">
-        <TextileRule />
+      <header className="paper-grain gor-wash border-b border-line bg-surface-1">
+        <TextileRule variant="band" />
         <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
           <Breadcrumbs
             items={[
@@ -45,7 +45,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               { label: article.section },
             ]}
           />
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-terracotta">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gor-marigold">
             {article.section}
           </p>
           <h1 className="mt-2 font-display text-3xl text-ink-strong sm:text-4xl">

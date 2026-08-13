@@ -18,6 +18,16 @@ import {
   publicStats,
 } from "@/lib/repository";
 
+/** Decorative rotation for article cards. Carries no meaning. */
+const ART_COLORS = [
+  "var(--gor-lac)",
+  "var(--gor-marigold)",
+  "var(--gor-parrot)",
+  "var(--gor-turquoise)",
+  "var(--gor-fuchsia)",
+  "var(--gor-violet)",
+];
+
 export default function HomePage() {
   const stats = publicStats();
   const featured = listTandas()[0];
@@ -45,7 +55,10 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------- */}
       <section className="border-b border-line bg-surface-1">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-          <h2 className="mb-1 font-display text-2xl text-ink-strong">Where the archive stands</h2>
+          <h2 className="mb-1 flex items-center gap-3 font-display text-2xl text-ink-strong">
+            <span className="mirror-dot" aria-hidden />
+            Where the archive stands
+          </h2>
           <p className="mb-5 max-w-3xl text-sm text-muted">
             Every figure below is computed from the live database. Most of them are zero, and they
             are shown as zero. A cultural archive that opens with impressive numbers it cannot
@@ -290,7 +303,12 @@ export default function HomePage() {
                 href={`/encyclopedia/${a.slug}`}
                 className="group rounded-lg border border-line bg-surface-0 p-5 transition-colors hover:border-peacock"
               >
-                <p className="text-[11px] uppercase tracking-wider text-terracotta">{a.section}</p>
+                <p
+                  className="text-[11px] uppercase tracking-wider"
+                  style={{ color: ART_COLORS[i % ART_COLORS.length] }}
+                >
+                  {a.section}
+                </p>
                 <h3 className="mt-1 font-display text-lg text-ink-strong">{a.title}</h3>
                 <p className="mt-2 line-clamp-3 text-sm text-muted">{a.standfirst}</p>
                 <p className="mt-3 text-[11px] text-muted">
@@ -307,7 +325,7 @@ export default function HomePage() {
       {/* Contribute + partners + latest                                   */}
       {/* ---------------------------------------------------------------- */}
       <section>
-        <TextileRule gold />
+        <TextileRule variant="gold" />
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <h2 className="font-display text-2xl text-ink-strong">

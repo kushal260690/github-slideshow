@@ -550,7 +550,7 @@ export function MapView({
         role="application"
         aria-label="Interactive map of documented Tandas. A keyboard-accessible text directory of the same records is available."
       />
-      {failed ? (
+      {failed && interactive ? (
         <div className="pointer-events-none absolute inset-x-0 bottom-14 mx-auto max-w-md rounded-lg border border-line-strong bg-surface-1 p-3 text-center text-xs text-muted">
           Base map tiles could not be loaded. Markers and filters still work, and the{" "}
           <span className="text-peacock">text directory</span> has the same records.

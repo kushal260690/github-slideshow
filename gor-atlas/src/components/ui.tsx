@@ -333,31 +333,66 @@ export function PeriodValue({
 /* Layout primitives                                                   */
 /* ------------------------------------------------------------------ */
 
-export function TextileRule({ gold = false }: { gold?: boolean }) {
-  return <div aria-hidden className={gold ? "textile-rule-gold" : "textile-rule"} />;
+export function TextileRule({
+  variant = "rule",
+}: {
+  /** "band" is the full five-colour embroidery band; "rule" is the slim one. */
+  variant?: "rule" | "band" | "gold";
+}) {
+  const cls =
+    variant === "band" ? "textile-band" : variant === "gold" ? "textile-rule-gold" : "textile-rule";
+  return <div aria-hidden className={cls} />;
 }
+
+/** Mirrorwork dot, used as a section mark. */
+export function MirrorDot({ className = "" }: { className?: string }) {
+  return <span aria-hidden className={`mirror-dot ${className}`} />;
+}
+
+/** Decorative accent cycle. Carries no meaning — purely visual rhythm. */
+const ACCENTS = [
+  "var(--gor-lac)",
+  "var(--gor-marigold)",
+  "var(--gor-parrot)",
+  "var(--gor-turquoise)",
+  "var(--gor-fuchsia)",
+  "var(--gor-violet)",
+];
+let accentCursor = 0;
 
 export function SectionCard({
   title,
   id,
   description,
   action,
+  accent,
   children,
 }: {
   title: string;
   id?: string;
   description?: string;
   action?: ReactNode;
+  /** Index into the decorative accent cycle. Auto-cycles when omitted. */
+  accent?: number;
   children: ReactNode;
 }) {
+  const color = ACCENTS[(accent ?? accentCursor++) % ACCENTS.length];
   return (
     <section
       id={id}
-      className="rounded-lg border border-line bg-surface-1 p-5 sm:p-6"
+      className="overflow-hidden rounded-lg border border-line bg-surface-1 p-5 sm:p-6"
+      style={{ borderTop: `3px solid ${color}` }}
     >
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl text-ink-strong">{title}</h2>
+          <h2 className="flex items-center gap-2 font-display text-xl text-ink-strong">
+            <span
+              aria-hidden
+              className="inline-block h-3 w-3 rotate-45"
+              style={{ backgroundColor: color }}
+            />
+            {title}
+          </h2>
           {description ? (
             <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p>
           ) : null}
@@ -381,11 +416,12 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="paper-grain border-b border-line bg-surface-1">
-      <TextileRule />
+    <header className="paper-grain gor-wash border-b border-line bg-surface-1">
+      <TextileRule variant="band" />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         {eyebrow ? (
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-terracotta">
+          <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gor-marigold">
+            <MirrorDot />
             {eyebrow}
           </p>
         ) : null}

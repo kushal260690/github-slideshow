@@ -6,7 +6,9 @@ import { InterpretationChip, SourceList, VerificationChip } from "@/components/u
 import { formatPeriod } from "@/lib/format";
 import type { MigrationRoute } from "@/lib/types";
 
-const ROUTE_COLORS = ["#d4674a", "#2fb6bf", "#c9a227", "#a077d6"];
+/* Decorative route colours from the Banjara palette — they distinguish routes
+   from one another and carry no claim about evidence quality. */
+const ROUTE_COLORS = ["#ff8a1f", "#26d3d3", "#f0409c", "#2fd07a"];
 
 const YEAR_MIN = 1500;
 const YEAR_MAX = 2000;
@@ -70,7 +72,10 @@ export function MigrationMap({ routes }: { routes: MigrationRoute[] }) {
           id: r.id,
           name: r.name,
           coordinates: r.waypoints.map((w) => w.coordinates),
-          color: selected === null || selected === r.id ? ROUTE_COLORS[i % ROUTE_COLORS.length] : "#4a5064",
+          color:
+            selected === null || selected === r.id
+              ? ROUTE_COLORS[i % ROUTE_COLORS.length]
+              : "#5c5480",
           progress,
         };
       }),

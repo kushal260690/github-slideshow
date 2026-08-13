@@ -6,28 +6,60 @@
    ========================================================================== */
 
 :root {
-  --ink: #f2ece1;
-  --ink-strong: #fffaf0;
-  --surface-0: #0d0f18;
-  --surface-1: #161a28;
-  --surface-2: #1f2434;
-  --surface-3: #2a3042;
-  --indigo: #1b1f3b;
-  --terracotta: #d4674a;
-  --terracotta-ink: #1a0d09;
-  --peacock: #2fb6bf;
-  --gold: #c9a227;
-  --muted: #9a9484;
-  --line: #2a3042;
-  --line-strong: #3b435c;
+  /* ----------------------------------------------------------------------
+     THE BANJARA PALETTE — decorative layer
 
-  /* Semantic verification colours — meaning-bearing, never decorative */
-  --v-verified: #3ab36a;
-  --v-partial: #d99a1f;
-  --v-basic: #9096a5;
-  --v-historical: #5a95e0;
-  --v-diaspora: #a077d6;
-  --v-disputed: #e05a42;
+     Drawn from what the textiles actually do: saturated lac red, marigold,
+     parrot green and fuchsia stitched dense against an indigo ground, broken
+     up by mirrorwork and cowrie white. These are DECORATIVE tokens. They set
+     the mood of the site and they may be used freely for motifs, bands,
+     section marks, illustration and hero graphics.
+
+     They are deliberately kept in a separate block from the verification
+     colours below, and the two sets never share a value. The rule that makes
+     the brightness safe: if a colour is carrying MEANING about evidence, it
+     comes from the semantic block. If it is carrying mood, it comes from here.
+     A reader must never have to wonder whether a bright colour is telling them
+     something about a record's reliability.
+     ---------------------------------------------------------------------- */
+  --gor-lac: #e63462;        /* lac red / deep pink */
+  --gor-crimson: #cf1b41;
+  --gor-marigold: #ffb223;   /* saffron / marigold */
+  --gor-amber: #ff8a1f;
+  --gor-parrot: #2fd07a;     /* parrot green */
+  --gor-turquoise: #26d3d3;
+  --gor-fuchsia: #f0409c;
+  --gor-violet: #8f6bff;
+  --gor-indigo: #2a2170;     /* the dye ground */
+  --gor-mirror: #f4f1e8;     /* mirrorwork / cowrie white */
+
+  --ink: #f8f2e6;
+  --ink-strong: #fffdf7;
+  /* Brighter, warmer ground than before: indigo-violet rather than charcoal. */
+  --surface-0: #141123;
+  --surface-1: #1e1935;
+  --surface-2: #292142;
+  --surface-3: #362c53;
+  --indigo: #2a2170;
+  --terracotta: #ff7a4d;
+  --terracotta-ink: #240d05;
+  --peacock: #26d3d3;
+  --gold: #ffc844;
+  --muted: #bdb3c4;
+  --line: #362c53;
+  --line-strong: #55487d;
+
+  /* ----------------------------------------------------------------------
+     Semantic verification colours — meaning-bearing, never decorative.
+     Brightened for the new ground, but the six hues stay distinct from each
+     other AND from the decorative palette above.
+     ---------------------------------------------------------------------- */
+  --v-verified: #35d07f;
+  --v-partial: #ffb627;
+  --v-basic: #a8aec4;
+  --v-historical: #5aa9ff;
+  --v-diaspora: #c07bff;
+  --v-disputed: #ff5f52;
 
   --font-display: ui-serif, "Iowan Old Style", "Source Serif 4", "Palatino Linotype",
     Georgia, serif;
@@ -44,28 +76,38 @@
 }
 
 [data-theme="light"] {
-  --ink: #14151c;
-  --ink-strong: #000000;
-  --surface-0: #f7f2e8;
-  --surface-1: #efe6d6;
-  --surface-2: #e5d9c3;
-  --surface-3: #dbcdb2;
-  --terracotta: #b4472e;
+  --ink: #1a1526;
+  --ink-strong: #0a0710;
+  /* Warm parchment, lifted brighter and given a little colour of its own. */
+  --surface-0: #fff8ec;
+  --surface-1: #fdefd9;
+  --surface-2: #f7e2c2;
+  --surface-3: #efd3a9;
+  --terracotta: #d1462a;
   --terracotta-ink: #ffffff;
-  --peacock: #0e7c86;
-  --gold: #8a6d24;
-  --muted: #5c5647;
-  --line: #d8ccb4;
-  --line-strong: #b9a887;
+  --peacock: #0a8f97;
+  --gold: #a8760d;
+  --muted: #5f5168;
+  --line: #e6ceac;
+  --line-strong: #c8a878;
 
-  --v-verified: #1f7a44;
+  --gor-lac: #c8123f;
+  --gor-crimson: #a5062f;
+  --gor-marigold: #e08700;
+  --gor-amber: #d96b06;
+  --gor-parrot: #12894c;
+  --gor-turquoise: #0a8f97;
+  --gor-fuchsia: #c41b76;
+  --gor-violet: #6539d8;
+  --gor-indigo: #2a2170;
+  --gor-mirror: #ffffff;
+
+  --v-verified: #17804a;
   --v-partial: #96650a;
-  --v-basic: #5f646f;
-  --v-historical: #2359a3;
-  --v-diaspora: #6a3fa8;
-  --v-disputed: #a92e1c;
-
-  color-scheme: light;
+  --v-basic: #55596b;
+  --v-historical: #1f56a8;
+  --v-diaspora: #6a30b0;
+  --v-disputed: #b32718;
 }
 
 /* Manual high-contrast mode (WCAG 2.2 AA+, doc 06 §8) */
@@ -119,6 +161,17 @@
   --color-v-historical: var(--v-historical);
   --color-v-diaspora: var(--v-diaspora);
   --color-v-disputed: var(--v-disputed);
+
+  --color-gor-lac: var(--gor-lac);
+  --color-gor-crimson: var(--gor-crimson);
+  --color-gor-marigold: var(--gor-marigold);
+  --color-gor-amber: var(--gor-amber);
+  --color-gor-parrot: var(--gor-parrot);
+  --color-gor-turquoise: var(--gor-turquoise);
+  --color-gor-fuchsia: var(--gor-fuchsia);
+  --color-gor-violet: var(--gor-violet);
+  --color-gor-indigo: var(--gor-indigo);
+  --color-gor-mirror: var(--gor-mirror);
 
   --font-display: var(--font-display);
   --font-ui: var(--font-ui);
@@ -204,18 +257,36 @@ table, .tabular {
    embroidery design.
    -------------------------------------------------------------------------- */
 
+/* --------------------------------------------------------------------------
+   Banjara-derived embroidery bands.
+
+   Abstract geometry — diamonds, chevrons and mirror dots — in the decorative
+   palette. These are constructions of this project, not reproductions of any
+   specific community's protected embroidery design, and they are used as
+   dividers and section marks rather than as backgrounds behind text.
+   -------------------------------------------------------------------------- */
+
 .textile-rule {
-  height: 6px;
+  height: 10px;
   width: 100%;
   background-image:
-    linear-gradient(135deg, var(--terracotta) 25%, transparent 25%),
-    linear-gradient(225deg, var(--terracotta) 25%, transparent 25%),
-    linear-gradient(45deg, var(--peacock) 25%, transparent 25%),
-    linear-gradient(315deg, var(--peacock) 25%, transparent 25%);
-  background-position: 0 0, 6px 0, 6px -6px, 0 6px;
-  background-size: 12px 12px;
+    linear-gradient(135deg, var(--gor-lac) 25%, transparent 25%),
+    linear-gradient(225deg, var(--gor-marigold) 25%, transparent 25%),
+    linear-gradient(45deg, var(--gor-turquoise) 25%, transparent 25%),
+    linear-gradient(315deg, var(--gor-parrot) 25%, transparent 25%);
+  background-position: 0 0, 10px 0, 10px -10px, 0 10px;
+  background-size: 20px 20px;
   background-repeat: repeat-x;
-  opacity: 0.55;
+  opacity: 0.9;
+}
+
+/* The full band: diamonds, mirrors and chevrons, five colours deep. */
+.textile-band {
+  height: 22px;
+  width: 100%;
+  background-repeat: repeat-x;
+  background-size: auto 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='22' viewBox='0 0 120 22'%3E%3Crect width='120' height='22' fill='%232a2170'/%3E%3Cg%3E%3Cpath d='M12 3 L19 11 L12 19 L5 11 Z' fill='%23e63462'/%3E%3Cpath d='M36 3 L43 11 L36 19 L29 11 Z' fill='%23ffb223'/%3E%3Cpath d='M60 3 L67 11 L60 19 L53 11 Z' fill='%232fd07a'/%3E%3Cpath d='M84 3 L91 11 L84 19 L77 11 Z' fill='%23f0409c'/%3E%3Cpath d='M108 3 L115 11 L108 19 L101 11 Z' fill='%2326d3d3'/%3E%3C/g%3E%3Cg fill='%23f4f1e8'%3E%3Ccircle cx='24' cy='11' r='2.2'/%3E%3Ccircle cx='48' cy='11' r='2.2'/%3E%3Ccircle cx='72' cy='11' r='2.2'/%3E%3Ccircle cx='96' cy='11' r='2.2'/%3E%3Ccircle cx='0' cy='11' r='2.2'/%3E%3C/g%3E%3Cg stroke='%23ffb223' stroke-width='1' fill='none' opacity='0.55'%3E%3Cpath d='M0 1 H120 M0 21 H120'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 .textile-rule-gold {
@@ -225,7 +296,25 @@ table, .tabular {
     var(--gold) 0 6px,
     transparent 6px 12px
   );
-  opacity: 0.6;
+  opacity: 0.7;
+}
+
+/* Mirrorwork dot — used as a section mark and as a list bullet. */
+.mirror-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, var(--gor-mirror), #9aa0b5 70%);
+  box-shadow: 0 0 0 2px var(--gor-lac), 0 0 8px color-mix(in srgb, var(--gor-marigold) 60%, transparent);
+}
+
+/* A warm, saturated wash used behind hero and feature sections. */
+.gor-wash {
+  background-image:
+    radial-gradient(60% 55% at 12% 10%, color-mix(in srgb, var(--gor-fuchsia) 22%, transparent), transparent 70%),
+    radial-gradient(55% 50% at 88% 8%, color-mix(in srgb, var(--gor-turquoise) 20%, transparent), transparent 70%),
+    radial-gradient(70% 60% at 50% 105%, color-mix(in srgb, var(--gor-marigold) 18%, transparent), transparent 75%);
 }
 
 /* Archival paper grain, ≤5% opacity, never behind body copy */
@@ -347,6 +436,16 @@ table, .tabular {
 [data-lowdata="on"] .animate-draw { stroke-dashoffset: 0; }
 [data-lowdata="on"] .paper-grain::after { display: none; }
 [data-lowdata="on"] .hero-decoration { display: none; }
+
+/* Printing must never lose content to an animation that has not run. */
+@media print {
+  *, *::before, *::after {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
 
 /* Utility */
 .sr-only {
