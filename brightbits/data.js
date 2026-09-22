@@ -21,17 +21,77 @@ window.BB_DATA = {
     { id: "create", label: "Be more creative", emoji: "💡", topics: ["creativity", "psychology"] }
   ],
 
+  // Fictional community curators who "stash" ideas from sources.
+  curators: [
+    { id: "c1", name: "Maya Chen", handle: "mayareads", bio: "Habits, focus and getting the important stuff done.", color: "#f5a524", followers: 18400 },
+    { id: "c2", name: "Leo Okafor", handle: "leothinks", bio: "Why we think the way we do. Bias hunter.", color: "#9b5de5", followers: 12950 },
+    { id: "c3", name: "Priya Nair", handle: "calmpriya", bio: "Calm mind, steady energy. Breathe first.", color: "#17c3b2", followers: 22100 },
+    { id: "c4", name: "Sam Rivera", handle: "samsaves", bio: "Personal finance without the jargon.", color: "#2ec27e", followers: 9870 },
+    { id: "c5", name: "Ana Costa", handle: "anaspeaks", bio: "Better conversations, better teams.", color: "#3a86ff", followers: 15300 },
+    { id: "c6", name: "Jonah Blake", handle: "jonahmakes", bio: "Making things, badly at first.", color: "#e056fd", followers: 7420 }
+  ],
+
   sources: [
-    { id: "s1", title: "The Compound Habit", author: "Brightbits Editors", type: "Book", topic: "productivity", minutes: 6 },
-    { id: "s2", title: "Deep Work in a Shallow World", author: "Brightbits Editors", type: "Article", topic: "productivity", minutes: 5 },
-    { id: "s3", title: "Stillness on Demand", author: "Brightbits Editors", type: "Book", topic: "mindfulness", minutes: 5 },
-    { id: "s4", title: "How Your Brain Fools You", author: "Brightbits Editors", type: "Book", topic: "psychology", minutes: 7 },
-    { id: "s5", title: "Money Without the Jargon", author: "Brightbits Editors", type: "Book", topic: "money", minutes: 6 },
-    { id: "s6", title: "Conversations That Land", author: "Brightbits Editors", type: "Article", topic: "communication", minutes: 5 },
-    { id: "s7", title: "The Energy Basics", author: "Brightbits Editors", type: "Podcast", topic: "health", minutes: 5 },
-    { id: "s8", title: "Leading Small Teams", author: "Brightbits Editors", type: "Book", topic: "leadership", minutes: 6 },
-    { id: "s9", title: "Making Things Anyway", author: "Brightbits Editors", type: "Video", topic: "creativity", minutes: 5 },
-    { id: "s10", title: "Worry, Examined", author: "Brightbits Editors", type: "Article", topic: "psychology", minutes: 4 }
+    { id: "s1", title: "The Compound Habit", author: "Brightbits Editors", type: "Book", topic: "productivity", minutes: 6, curator: "c1" },
+    { id: "s2", title: "Deep Work in a Shallow World", author: "Brightbits Editors", type: "Article", topic: "productivity", minutes: 5, curator: "c1" },
+    { id: "s3", title: "Stillness on Demand", author: "Brightbits Editors", type: "Book", topic: "mindfulness", minutes: 5, curator: "c3" },
+    { id: "s4", title: "How Your Brain Fools You", author: "Brightbits Editors", type: "Book", topic: "psychology", minutes: 7, curator: "c2" },
+    { id: "s5", title: "Money Without the Jargon", author: "Brightbits Editors", type: "Book", topic: "money", minutes: 6, curator: "c4" },
+    { id: "s6", title: "Conversations That Land", author: "Brightbits Editors", type: "Article", topic: "communication", minutes: 5, curator: "c5" },
+    { id: "s7", title: "The Energy Basics", author: "Brightbits Editors", type: "Podcast", topic: "health", minutes: 5, curator: "c3" },
+    { id: "s8", title: "Leading Small Teams", author: "Brightbits Editors", type: "Book", topic: "leadership", minutes: 6, curator: "c5" },
+    { id: "s9", title: "Making Things Anyway", author: "Brightbits Editors", type: "Video", topic: "creativity", minutes: 5, curator: "c6" },
+    { id: "s10", title: "Worry, Examined", author: "Brightbits Editors", type: "Article", topic: "psychology", minutes: 4, curator: "c2" }
+  ],
+
+  // Multi-day guided courses. The first one is free; the rest need Pro.
+  journeys: [
+    { id: "j1", title: "Beat distraction in 5 days", emoji: "🎯", topic: "productivity", pro: false,
+      desc: "Rebuild your attention span one small practice at a time.",
+      days: [
+        { title: "Why focus breaks", ideas: ["i6", "i8"] },
+        { title: "Protect your time", ideas: ["i7", "i12"] },
+        { title: "Reset in the moment", ideas: ["i10", "i2"] },
+        { title: "Close the loops", ideas: ["i9", "i3"] },
+        { title: "Make it who you are", ideas: ["i1", "i4"] }
+      ] },
+    { id: "j2", title: "A calmer mind", emoji: "🌿", topic: "mindfulness", pro: true,
+      desc: "Four short days of tools for stress and racing thoughts.",
+      days: [
+        { title: "Notice", ideas: ["i10", "i11"] },
+        { title: "Unhook from worry", ideas: ["i13", "i19"] },
+        { title: "Let go", ideas: ["i20", "i12"] },
+        { title: "Rest well", ideas: ["i31", "i32"] }
+      ] },
+    { id: "j3", title: "Money basics", emoji: "💰", topic: "money", pro: true,
+      desc: "The handful of money habits that do most of the work.",
+      days: [
+        { title: "Automate", ideas: ["i21", "i23"] },
+        { title: "Let time work", ideas: ["i22", "i25"] },
+        { title: "Spend on purpose", ideas: ["i24", "i16"] },
+        { title: "Decide clearly", ideas: ["i15", "i17"] }
+      ] },
+    { id: "j4", title: "Speak with confidence", emoji: "🎤", topic: "communication", pro: true,
+      desc: "Listen better, say it clearly, and give feedback that helps.",
+      days: [
+        { title: "Nobody's watching", ideas: ["i18", "i26"] },
+        { title: "Get to the point", ideas: ["i27", "i29"] },
+        { title: "Hard conversations", ideas: ["i28", "i30"] },
+        { title: "Lift others", ideas: ["i35", "i38"] }
+      ] },
+    { id: "j5", title: "Creative spark", emoji: "💡", topic: "creativity", pro: true,
+      desc: "Get unstuck and start making things again.",
+      days: [
+        { title: "Start small", ideas: ["i40", "i39"] },
+        { title: "Feed the well", ideas: ["i41", "i42"] },
+        { title: "Keep showing up", ideas: ["i8", "i3"] }
+      ] }
+  ],
+
+  plans: [
+    { id: "annual", label: "12 months", price: "$47.99", was: "$95.99", per: "$0.92 / week", badge: "Best value" },
+    { id: "quarter", label: "3 months", price: "$19.99", was: "$39.99", per: "$1.54 / week" },
+    { id: "month", label: "1 month", price: "$8.99", was: "$17.99", per: "$2.08 / week" }
   ],
 
   ideas: [
