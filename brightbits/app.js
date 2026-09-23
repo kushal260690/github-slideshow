@@ -2,7 +2,9 @@
   "use strict";
 
   var D = window.BB_DATA;
+  var API = window.BB_API;
   var KEY = "brightbits.v1";
+  var SYNC_KEYS = ["onboarded", "profile", "stashes", "liked", "history", "journeys", "badges", "theme"];
   var FREE_STASH_LIMIT = 3;
   var FREE_SAVE_LIMIT = 25;
   var FREE_HISTORY_DAYS = 3;
@@ -31,6 +33,9 @@
     };
   }
   var state = load();
+  // Server mode only: the signed-in account, and shared community data.
+  var account = null; // { user, subscription }
+  var community = { ideas: [], users: {}, followers: {} };
 
   function load() {
     try {
@@ -45,7 +50,37 @@
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+    if (API.online && account) API.saveState(syncable(state));
   }
+  function syncable(s) {
+    var out = {};
+    SYNC_KEYS.forEach(function (k) { out[k] = s[k]; });
+    return out;
+  }
+  // Server responses are the source of truth for progress, follows and Pro status.
+  function applyServer(me) {
+    account = { user: me.user, subscription: me.subscription };
+    var theme = state.theme;
+    state = Object.assign(defaultState(), me.state || {});
+    state.profile = Object.assign(defaultState().profile, state.profile);
+    if (!me.state || !me.state.theme) state.theme = theme;
+    state.following = me.following || [];
+    state.custom = [];
+    var sub = me.subscription;
+    state.pro = me.pro ? { plan: sub.plan, since: 0, trialEnds: sub.trialEnd || sub.currentPeriodEnd, provider: sub.provider, status: sub.status, cancelAtPeriodEnd: sub.cancelAtPeriodEnd } : null;
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+  function refreshMe() {
+    return API.me().then(function (me) { applyServer(me); return me; });
+  }
+  function loadCommunity() {
+    if (!API.online) return Promise.resolve();
+    return API.ideas().then(function (r) { community = r; }).catch(function () { /* keep what we have */ });
+  }
+  API.onSyncError(function (e) {
+    toast(e.status === 402 ? "🔒 " + e.message + " — go Pro for unlimited" : "Couldn't sync: " + e.message);
+    if (e.status === 402 || e.status === 400) refreshMe().then(rerenderKeepScroll, function () {});
+  });
 
   // ---------- Helpers ----------
   function esc(s) {
@@ -62,13 +97,29 @@
   function topic(id) { return byId(D.topics, id) || { id: id, name: id, emoji: "✨", color: "#ff6b3d" }; }
   function source(id) { return byId(D.sources, id); }
   function journey(id) { return byId(D.journeys, id); }
-  function allIdeas() { return D.ideas.concat(state.custom); }
+  function allIdeas() { return D.ideas.concat(API.online ? community.ideas : state.custom); }
   function idea(id) { return byId(allIdeas(), id); }
+  function myId() { return account ? account.user.id : "me"; }
+  function myIdeas() { return allIdeas().filter(function (i) { return i.curator === "me" || (account && i.curator === account.user.id); }); }
   function me() {
-    var n = state.profile.name || "You";
-    return { id: "me", name: n, handle: n.toLowerCase().replace(/[^a-z0-9]/g, "") || "you", bio: "Growing a little every day.", color: "var(--accent)", followers: 0 };
+    var u = account && account.user;
+    var n = (u && u.name) || state.profile.name || "You";
+    return { id: "me", name: n, handle: (u && u.handle) || n.toLowerCase().replace(/[^a-z0-9]/g, "") || "you", bio: (u && u.bio) || "Growing a little every day.", color: "var(--accent)", followers: u ? u.followers : 0 };
   }
-  function curator(id) { return id === "me" ? me() : byId(D.curators, id); }
+  var USER_COLORS = ["#ef476f", "#3a86ff", "#ff7b00", "#2ec27e", "#9b5de5", "#17c3b2"];
+  function curator(id) {
+    if (id === "me" || (account && id === account.user.id)) return me();
+    var seed = byId(D.curators, id);
+    if (seed) return seed;
+    var u = community.users[id];
+    return u ? Object.assign({ color: USER_COLORS[hash(id) % USER_COLORS.length] }, u, { followers: 0 }) : null;
+  }
+  // Seed curators have a baseline audience; real follows from the server (or this device) add to it.
+  function followerCount(c) {
+    if (c.id === "me") return c.followers;
+    var real = API.online ? (community.followers[c.id] || 0) : (state.following.indexOf(c.id) >= 0 ? 1 : 0);
+    return (c.followers || 0) + real;
+  }
   function ideaCurator(i) {
     if (i.curator) return curator(i.curator);
     var s = source(i.source);
@@ -77,8 +128,9 @@
   function isPro() { return !!state.pro; }
   function compact(n) { return n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n); }
   function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
-  function saveCount(i) { return (i.curator === "me" ? 0 : 120 + (hash(i.id) % 4700)) + (isStashed(i.id) ? 1 : 0); }
-  function likeCount(i) { return (i.curator === "me" ? 0 : 40 + (hash(i.id + "l") % 1900)) + (state.liked.indexOf(i.id) >= 0 ? 1 : 0); }
+  function isMine(i) { return i.curator === "me" || (!!account && i.curator === account.user.id); }
+  function saveCount(i) { return (isMine(i) || !byId(D.ideas, i.id) ? 0 : 120 + (hash(i.id) % 4700)) + (isStashed(i.id) ? 1 : 0); }
+  function likeCount(i) { return (isMine(i) || !byId(D.ideas, i.id) ? 0 : 40 + (hash(i.id + "l") % 1900)) + (state.liked.indexOf(i.id) >= 0 ? 1 : 0); }
 
   function readSet() {
     var s = {};
@@ -150,10 +202,17 @@
     return i < 0;
   }
   function toggleFollow(cid) {
-    var i = state.following.indexOf(cid);
-    if (i >= 0) state.following.splice(i, 1); else state.following.push(cid);
+    var i = state.following.indexOf(cid), on = i < 0;
+    if (on) state.following.push(cid); else state.following.splice(i, 1);
+    if (API.online && account) {
+      community.followers[cid] = Math.max(0, (community.followers[cid] || 0) + (on ? 1 : -1));
+      API.follow(cid, on).catch(function (e) {
+        toast("Couldn't update follow: " + e.message);
+        refreshMe().then(loadCommunity).then(rerenderKeepScroll, function () {});
+      });
+    }
     save(); checkBadges();
-    return i < 0;
+    return on;
   }
 
   // ---------- Badges ----------
@@ -165,7 +224,7 @@
     { id: "reader50", emoji: "📚", name: "Bookworm", desc: "Read 50 ideas", test: function () { return Object.keys(readSet()).length >= 50; } },
     { id: "collector", emoji: "📌", name: "Collector", desc: "Stash 10 ideas", test: function () { return stashedTotal() >= 10; } },
     { id: "social", emoji: "🤝", name: "Networker", desc: "Follow 3 curators", test: function () { return state.following.length >= 3; } },
-    { id: "creator", emoji: "✍️", name: "Creator", desc: "Publish an idea", test: function () { return state.custom.length >= 1; } },
+    { id: "creator", emoji: "✍️", name: "Creator", desc: "Publish an idea", test: function () { return myIdeas().length >= 1; } },
     { id: "journey", emoji: "🏁", name: "Finisher", desc: "Complete a journey", test: function () { return D.journeys.some(function (j) { return journeyDone(j) === j.days.length; }); } }
   ];
   function checkBadges() {
@@ -270,7 +329,8 @@
         '<p class="muted">Big ideas from books, articles and podcasts, boiled down to 1-minute reads and arranged into a growth plan built around your goals.</p>' +
         '<div class="stack">' + D.topics.slice(0, 6).map(function (t) { return '<span class="pill">' + t.emoji + " " + t.name + "</span>"; }).join("") + "</div>" +
         '<button class="btn block" data-act="ob-next">Build my growth plan</button>' +
-        '<p class="small muted" style="margin-top:14px">⭐ 4.8 average from our readers · Takes 1 minute</p></div>';
+        '<p class="small muted" style="margin-top:14px">⭐ 4.8 average from our readers · Takes 1 minute</p>' +
+        (API.online ? '<p><button class="link-btn" data-act="show-login">I already have an account</button></p>' : "") + "</div>";
     } else if (s === 1) {
       html = '<div class="ob-step"><h1>How old are you?</h1><p class="lead">We use this to pick ideas that fit your stage of life.</p><div class="options">' +
         AGES.map(function (a) { return optBtn("age", a, "🙂", a, p.age === a, false); }).join("") + "</div></div>";
@@ -312,10 +372,65 @@
         "</ul></div>";
     } else if (s === 11) {
       html = renderPlan(p, true);
+    } else if (s === 12) {
+      html = '<div class="ob-step"><div class="hero" style="padding-top:0"><div class="logo">🔐</div></div><h1>Save your plan</h1>' +
+        '<p class="lead">Create a free account to keep your plan, streak and stashes on every device.</p>' +
+        '<form id="auth-form" data-mode="signup" novalidate>' +
+        '<input class="text-input" name="name" maxlength="30" placeholder="First name" autocomplete="given-name" value="' + esc(p.name) + '">' +
+        '<input class="text-input" name="email" type="email" required placeholder="Email" autocomplete="email">' +
+        '<input class="text-input" name="password" type="password" required minlength="8" placeholder="Password (8+ characters)" autocomplete="new-password">' +
+        '<p class="form-error" id="auth-err" role="alert"></p>' +
+        '<button class="btn block" type="submit">Create account</button></form>' +
+        '<p style="text-align:center"><button class="link-btn" data-act="show-login">I already have an account</button></p></div>';
+    } else if (s === "login") {
+      html = '<div class="ob-step"><div class="ob-top"><button class="icon-btn" data-act="ob-restart" aria-label="Back">←</button></div><h1>Welcome back</h1><p class="lead">Log in to pick up where you left off.</p>' +
+        '<form id="auth-form" data-mode="login" novalidate>' +
+        '<input class="text-input" name="email" type="email" required placeholder="Email" autocomplete="email">' +
+        '<input class="text-input" name="password" type="password" required placeholder="Password" autocomplete="current-password">' +
+        '<p class="form-error" id="auth-err" role="alert"></p>' +
+        '<button class="btn block" type="submit">Log in</button></form>' +
+        '<p style="text-align:center"><button class="link-btn" data-act="ob-restart">New here? Build your growth plan</button></p></div>';
     }
     $app.innerHTML = top + html;
     if (s === 9) { var n = document.getElementById("ob-name"); n.focus(); n.addEventListener("keydown", function (e) { if (e.key === "Enter") act("ob-next"); }); }
     if (s === 10) runBuilder();
+    var form = document.getElementById("auth-form");
+    if (form) form.addEventListener("submit", submitAuth);
+  }
+
+  function submitAuth(e) {
+    e.preventDefault();
+    var f = e.target, mode = f.dataset.mode, err = document.getElementById("auth-err"), btn = f.querySelector("button[type=submit]");
+    var email = f.email.value.trim(), password = f.password.value;
+    err.textContent = "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "Enter a valid email."; return; }
+    if (mode === "signup" && password.length < 8) { err.textContent = "Password must be at least 8 characters."; return; }
+    btn.disabled = true;
+    var offlineIdeas = state.custom.slice();
+    var req;
+    if (mode === "signup") {
+      var p = Object.assign({}, ob.draft || state.profile, { name: f.name.value.trim() || (ob.draft || state.profile).name });
+      req = API.signup({ email: email, password: password, name: p.name, state: syncable(Object.assign({}, state, { profile: p, onboarded: true })) });
+    } else {
+      req = API.login(email, password);
+    }
+    req.then(function (meRes) {
+      applyServer(meRes);
+      // Carry over ideas written before the account existed.
+      return Promise.all(mode === "signup" ? offlineIdeas.map(function (i) {
+        return API.createIdea({ title: i.title, body: i.body, topic: i.topic, source: i.source }).catch(function () {});
+      }) : []).then(loadCommunity);
+    }).then(function () {
+      checkBadges();
+      if (!state.onboarded) { ob = { step: 1, draft: null }; render(); return; }
+      ob = { step: 0, draft: null };
+      if (mode === "signup" && !isPro()) { paywallFromQuiz = true; paywallReason = ""; location.hash = "#/pro"; }
+      else { toast(mode === "login" ? "Welcome back" + (state.profile.name ? ", " + state.profile.name : "") + " 👋" : "Account created 🎉"); location.hash = "#/home"; }
+      render(); window.scrollTo(0, 0);
+    }, function (ex) {
+      btn.disabled = false;
+      err.textContent = ex.message;
+    });
   }
 
   function optBtn(kind, id, emoji, label, sel, multi) {
@@ -381,9 +496,8 @@
     if (isPro()) {
       var plan = byId(D.plans, state.pro.plan) || D.plans[0];
       return '<div class="header-row"><a class="icon-btn" href="#/me" aria-label="Back" style="text-decoration:none">←</a><span></span></div>' +
-        '<div class="hero" style="padding-top:2vh"><div class="logo">👑</div><h1>You\'re Pro</h1><p class="muted">' + plan.label + " plan · trial ends " +
-        new Date(state.pro.trialEnds).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + "</p></div>" +
-        proBenefits() + '<button class="btn block ghost" data-act="cancel-pro">Cancel subscription</button>';
+        '<div class="hero" style="padding-top:2vh"><div class="logo">👑</div><h1>You\'re Pro</h1><p class="muted">' + plan.label + " plan · " + proStatusText() + "</p></div>" +
+        proBenefits() + '<button class="btn block ghost" data-act="cancel-pro">' + (state.pro.provider === "stripe" ? "Manage billing" : "Cancel subscription") + "</button>";
     }
     return '<div class="header-row"><button class="icon-btn" data-act="skip-pro" aria-label="Close">✕</button>' +
       '<span class="timer" id="pw-timer">⏳ Offer reserved for <b>10:00</b></span></div>' +
@@ -395,9 +509,21 @@
           (pl.badge ? '<span class="plan-badge">' + pl.badge + "</span>" : "") +
           '<span class="radio"></span><span class="grow"><b>' + pl.label + '</b><br><span class="small muted"><s>' + pl.was + "</s> " + pl.price + '</span></span><span class="per">' + pl.per + "</span></button>";
       }).join("") + "</div>" +
-      '<button class="btn block" data-act="start-trial">Start 7-day free trial</button>' +
-      '<p class="small muted" style="text-align:center;margin-top:10px">Cancel anytime before the trial ends.<br><b>Demo build:</b> no payment is taken — this just unlocks Pro on this device.</p>' +
+      '<button class="btn block" data-act="start-trial"' + (API.online && API.billing === "off" ? " disabled" : "") + ">Start 7-day free trial</button>" +
+      '<p class="small muted" style="text-align:center;margin-top:10px">Cancel anytime before the trial ends.<br>' + paywallNote() + "</p>" +
       '<p style="text-align:center"><button class="link-btn" data-act="skip-pro">Continue with the free plan</button></p>';
+  }
+  function proStatusText() {
+    var pr = state.pro, when = pr.trialEnds ? new Date(pr.trialEnds).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
+    if (pr.cancelAtPeriodEnd) return "cancels " + when;
+    if (pr.status === "active") return "renews " + when;
+    return "trial ends " + when;
+  }
+  function paywallNote() {
+    if (!API.online) return "<b>Demo build:</b> no payment is taken — this just unlocks Pro on this device.";
+    if (API.billing === "stripe") return "Secure checkout by Stripe. You won't be charged until the trial ends.";
+    if (API.billing === "demo") return "<b>Demo billing:</b> no payment is taken — Pro is granted on the server for testing.";
+    return "Subscriptions aren't available yet.";
   }
   function proBenefits() {
     return '<ul class="benefits">' +
@@ -473,7 +599,7 @@
   }
   function curatorChip(c) {
     var on = state.following.indexOf(c.id) >= 0;
-    return '<div class="curator-chip"><button class="who col" data-act="open-user" data-id="' + c.id + '">' + avatar(c, 48) + "<b>" + esc(c.name.split(" ")[0]) + '</b><span class="small muted">' + compact(c.followers) + ' followers</span></button>' +
+    return '<div class="curator-chip"><button class="who col" data-act="open-user" data-id="' + c.id + '">' + avatar(c, 48) + "<b>" + esc(c.name.split(" ")[0]) + '</b><span class="small muted">' + compact(followerCount(c)) + ' followers</span></button>' +
       '<button class="follow-btn ' + (on ? "on" : "") + '" data-act="follow" data-id="' + c.id + '">' + (on ? "Following" : "Follow") + "</button></div>";
   }
 
@@ -544,15 +670,27 @@
       '<div class="section-title"><h2>Ideas</h2></div><div class="idea-list">' + list.map(function (i) { return ideaCard(i, { dimRead: true }); }).join("") + "</div>";
   }
 
+  var userCache = {};
   function viewUser(id) {
     var c = curator(id);
+    if (!c && API.online && /^u\d+$/.test(id)) {
+      // Someone with no ideas in the community feed yet: fetch their profile.
+      if (!userCache[id]) {
+        userCache[id] = API.user(id).then(function (r) {
+          community.users[id] = r.user;
+          r.ideas.forEach(function (i) { if (!byId(community.ideas, i.id)) community.ideas.push(i); });
+          render();
+        }, function () { userCache[id] = "missing"; render(); });
+      }
+      return userCache[id] === "missing" ? viewNotFound() : '<div class="empty">Loading profile…</div>';
+    }
     if (!c) return viewNotFound();
     var list = allIdeas().filter(function (i) { var x = ideaCurator(i); return x && x.id === c.id; });
     var on = state.following.indexOf(c.id) >= 0;
     return '<div class="header-row"><button class="icon-btn" data-act="back" aria-label="Back">←</button><span></span></div>' +
       '<div class="profile-head">' + avatar(c, 72) + '<div class="grow"><h1>' + esc(c.name) + '</h1><div class="small muted">@' + esc(c.handle) + "</div></div></div>" +
       "<p>" + esc(c.bio) + "</p>" +
-      '<div class="stat-row"><div class="stat"><b>' + list.length + '</b><span>ideas</span></div><div class="stat"><b>' + compact(c.followers + (on ? 1 : 0)) + '</b><span>followers</span></div><div class="stat"><b>' + (40 + hash(c.id) % 300) + "</b><span>following</span></div></div>" +
+      '<div class="stat-row"><div class="stat"><b>' + list.length + '</b><span>ideas</span></div><div class="stat"><b>' + compact(followerCount(c)) + '</b><span>followers</span></div><div class="stat"><b>' + (c.id === "me" ? state.following.length : byId(D.curators, c.id) ? 40 + hash(c.id) % 300 : (c.following || 0)) + "</b><span>following</span></div></div>" +
       (c.id === "me" ? "" : '<button class="btn block ' + (on ? "ghost" : "") + '" data-act="follow" data-id="' + c.id + '">' + (on ? "Following ✓" : "Follow") + "</button>") +
       '<div class="section-title"><h2>Stashed ideas</h2></div><div class="idea-list">' + list.map(function (i) { return ideaCard(i); }).join("") + "</div>";
   }
@@ -600,7 +738,7 @@
   }
 
   function viewCreate() {
-    var mine = state.custom.slice().reverse();
+    var mine = myIdeas().slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
     var srcOpts = '<option value="">No source (my own thought)</option>' + D.sources.map(function (s) { return '<option value="' + s.id + '">' + esc(s.title) + " (" + s.type + ")</option>"; }).join("");
     return "<h1>Create an idea</h1><p class=\"muted\">Found something worth keeping? Put it in your own words and share it with your followers.</p>" +
       '<form id="create-form">' +
@@ -635,9 +773,12 @@
       '<div class="list-row"><span class="grow">Subscription</span><a class="btn small ghost" href="#/pro">' + (isPro() ? "Manage" : "Go Pro") + "</a></div>" +
       '<div class="list-row"><span class="grow">Public profile</span><button class="btn small ghost" data-act="open-user" data-id="me">View</button></div>' +
       "</div>" +
+      (API.online && account
+        ? '<div class="list"><div class="list-row"><span class="grow">Signed in as <b>' + esc(account.user.email) + '</b></span><button class="btn small ghost" data-act="logout">Log out</button></div></div>'
+        : '<p class="small muted">Offline mode: your data is saved on this device only.</p>') +
       '<div class="list"><div class="list-row"><span class="grow">Retake the quiz</span><button class="btn small ghost" data-act="retake">Retake</button></div>' +
       '<div class="list-row"><span class="grow">Reset all data</span><button class="btn small ghost" data-act="reset">Reset</button></div></div>' +
-      '<p class="small muted" style="text-align:center">Brightbits · your data stays on this device</p>';
+      '<p class="small muted" style="text-align:center">Brightbits' + (API.online ? "" : " · your data stays on this device") + "</p>";
   }
 
   function viewNotFound() {
@@ -722,7 +863,8 @@
     var t = topic(i.topic), src = source(i.source);
     sheet('<div class="tag small" style="color:' + t.color + ';font-weight:800;text-transform:uppercase">' + t.emoji + " " + t.name + "</div><h2>" + esc(i.title) + '</h2><p style="font-size:18px">' + esc(i.body) + "</p>" +
       (src ? '<p class="small muted">From <a href="#/source/' + src.id + '" data-act="sheet-link">' + esc(src.title) + "</a> · " + src.type + "</p>" : "") +
-      '<div class="idea-actions"><button class="btn" data-act="stash" data-id="' + id + '">' + (isStashed(id) ? "📌 Stashed" : "➕ Stash") + '</button><button class="btn ghost" data-act="like" data-id="' + id + '">' + (state.liked.indexOf(id) >= 0 ? "❤️" : "🤍") + '</button><button class="btn ghost" data-act="listen" data-id="' + id + '">🎧</button><button class="btn ghost" data-act="share" data-id="' + id + '">↗</button></div>');
+      '<div class="idea-actions"><button class="btn" data-act="stash" data-id="' + id + '">' + (isStashed(id) ? "📌 Stashed" : "➕ Stash") + '</button><button class="btn ghost" data-act="like" data-id="' + id + '">' + (state.liked.indexOf(id) >= 0 ? "❤️" : "🤍") + '</button><button class="btn ghost" data-act="listen" data-id="' + id + '">🎧</button><button class="btn ghost" data-act="share" data-id="' + id + '">↗</button></div>' +
+      (isMine(i) ? '<p style="text-align:center;margin-top:14px"><button class="link-btn" data-act="delete-idea" data-id="' + id + '">Delete this idea</button></p>' : ""));
     markRead(id);
   }
   function topicsSheet() {
@@ -738,7 +880,8 @@
   function render() {
     applyTheme();
     if (observer) { observer.disconnect(); observer = null; }
-    if (!state.onboarded) {
+    if (!state.onboarded || (API.online && !account)) {
+      if (state.onboarded && ob.step === 0) ob.step = 12; // offline progress: offer to save it
       $tabbar.hidden = true;
       $app.classList.add("no-tabs");
       renderOnboarding();
@@ -789,7 +932,17 @@
         e.preventDefault();
         var f = e.target, title = f.title.value.trim(), body = f.body.value.trim();
         if (!title || !body) return;
-        state.custom.push({ id: "c" + Date.now(), title: title, body: body, topic: f.topic.value, source: f.source.value || undefined, curator: "me" });
+        var draft = { title: title, body: body, topic: f.topic.value, source: f.source.value || undefined };
+        if (API.online) {
+          var btn = f.querySelector("button[type=submit]");
+          btn.disabled = true;
+          API.createIdea(draft).then(function (r) {
+            community.ideas.unshift(r.idea);
+            checkBadges(); toast("Idea published ✨"); render();
+          }, function (err) { btn.disabled = false; toast(err.message); });
+          return;
+        }
+        state.custom.push(Object.assign({ id: "c" + Date.now(), curator: "me" }, draft));
         save(); checkBadges(); toast("Idea published ✨"); render();
       });
     }
@@ -827,8 +980,11 @@
     switch (name) {
       case "ob-next":
         if (ob.step === 9) p.name = (document.getElementById("ob-name").value || "").trim();
+        if (ob.step === 11) { act("ob-finish"); return; }
         ob.step++; renderOnboarding(); window.scrollTo(0, 0); break;
       case "ob-back": ob.step = Math.max(0, ob.step - 1); renderOnboarding(); break;
+      case "show-login": ob.step = "login"; renderOnboarding(); window.scrollTo(0, 0); break;
+      case "ob-restart": ob = { step: 0, draft: null }; renderOnboarding(); break;
       case "pick": {
         var kind = el.dataset.kind;
         if (kind === "goal") { toggleIn(p.goals, id); p.topics = []; }
@@ -848,18 +1004,41 @@
         p.minutes = +el.dataset.v; renderOnboarding();
         setTimeout(function () { act("ob-next"); }, 220); break;
       case "ob-finish":
+        if (API.online && !account) { ob.step = 12; renderOnboarding(); window.scrollTo(0, 0); break; }
         state.profile = p; state.onboarded = true; ob = { step: 0, draft: null };
         save(); paywallReason = ""; paywallFromQuiz = true; location.hash = "#/pro"; render(); window.scrollTo(0, 0); break;
 
       case "pick-plan": selectedPlan = id; render(); break;
       case "start-trial":
+        if (API.online) {
+          el.disabled = true;
+          API.checkout(selectedPlan).then(function (r) {
+            if (r.url) { location.href = r.url; return; } // Stripe Checkout
+            return refreshMe().then(function () { toast("👑 Pro unlocked — enjoy!"); paywallFromQuiz = false; location.hash = "#/home"; });
+          }).catch(function (e) { el.disabled = false; toast(e.message); });
+          break;
+        }
         state.pro = { plan: selectedPlan, since: Date.now(), trialEnds: addDays(new Date(), 7).getTime() };
         save(); toast("👑 Pro unlocked — enjoy!"); paywallFromQuiz = false; location.hash = "#/home"; break;
       case "skip-pro":
         if (paywallFromQuiz) { paywallFromQuiz = false; location.hash = "#/home"; } else history.length > 1 ? history.back() : (location.hash = "#/home");
         break;
       case "cancel-pro":
-        if (confirm("Cancel Pro? You'll go back to the free plan.")) { state.pro = null; save(); location.hash = "#/me"; }
+        if (API.online && state.pro && state.pro.provider === "stripe") {
+          el.disabled = true;
+          API.portal().then(function (r) { location.href = r.url; }, function (e) { el.disabled = false; toast(e.message); });
+          break;
+        }
+        if (!confirm("Cancel Pro? You'll go back to the free plan.")) break;
+        if (API.online) { API.cancel().then(refreshMe).then(function () { location.hash = "#/me"; render(); }, function (e) { toast(e.message); }); break; }
+        state.pro = null; save(); location.hash = "#/me";
+        break;
+      case "logout":
+        API.flush().then(API.logout).catch(function () {}).then(function () {
+          try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+          location.hash = "";
+          location.reload();
+        });
         break;
       case "go-pro": closeSheet(); requirePro(el.dataset.reason); break;
 
@@ -952,6 +1131,17 @@
         }
         break;
       case "share": shareIdea(id); break;
+      case "delete-idea": {
+        if (!confirm("Delete this idea for everyone?")) return;
+        var drop = function () {
+          community.ideas = community.ideas.filter(function (x) { return x.id !== id; });
+          state.custom = state.custom.filter(function (x) { return x.id !== id; });
+          save(); closeSheet(); toast("Idea deleted"); rerenderKeepScroll();
+        };
+        if (API.online && account) API.deleteIdea(id).then(drop, function (e) { toast(e.message); });
+        else drop();
+        break;
+      }
 
       case "set-min": state.profile.minutes = +el.dataset.v; save(); render(); break;
       case "set-theme": state.theme = el.dataset.v; save(); render(); break;
@@ -998,6 +1188,30 @@
   });
   window.addEventListener("hashchange", function () { closeSheet(); stopSpeak(); render(); window.scrollTo(0, 0); });
 
-  checkBadges();
-  render();
+  function handleCheckoutReturn() {
+    var params = new URLSearchParams(location.search), result = params.get("checkout");
+    if (!result) return;
+    history.replaceState(null, "", location.pathname + location.hash);
+    if (result === "cancel") { toast("Checkout cancelled"); return; }
+    // The webhook can land a moment after the redirect, so poll briefly.
+    toast("Finishing up your subscription…");
+    var tries = 0;
+    (function poll() {
+      refreshMe().then(function () {
+        if (isPro()) { toast("👑 Welcome to Pro!"); render(); }
+        else if (++tries < 8) setTimeout(poll, 1500);
+        else toast("Payment received — Pro will unlock shortly");
+      }, function () {});
+    })();
+  }
+
+  $app.innerHTML = '<div class="empty">Loading…</div>';
+  API.init().then(function (online) {
+    if (!online) return;
+    return API.me().then(applyServer, function () { account = null; }).then(loadCommunity);
+  }).then(function () {
+    if (account) handleCheckoutReturn();
+    checkBadges();
+    render();
+  });
 })();
