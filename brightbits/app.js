@@ -851,7 +851,26 @@
   function sheet(html) {
     $modal.innerHTML = '<div class="backdrop" data-act="sheet-close"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>' + html + "</div></div>";
   }
-  function closeSheet() { $modal.innerHTML = ""; }
+  function closeSheet() { $modal.innerHTML = ""; sheetAction = null; }
+  var sheetAction = null;
+  function askConfirm(title, message, yesLabel, onYes) {
+    sheet("<h2>" + esc(title) + '</h2><p class="muted">' + esc(message) + "</p>" +
+      '<div class="dialog-actions"><button class="btn ghost" data-act="sheet-close-btn">Keep it</button><button class="btn danger" data-act="sheet-yes">' + esc(yesLabel) + "</button></div>");
+    sheetAction = onYes;
+  }
+  function askText(title, value, placeholder, saveLabel, onSave) {
+    sheet("<h2>" + esc(title) + '</h2><form id="ask-form"><input class="text-input" id="ask-input" maxlength="40" required placeholder="' + esc(placeholder) + '" value="' + esc(value || "") + '">' +
+      '<div class="dialog-actions"><button class="btn ghost" type="button" data-act="sheet-close-btn">Cancel</button><button class="btn" type="submit">' + esc(saveLabel) + "</button></div></form>");
+    var input = document.getElementById("ask-input");
+    input.focus(); input.select();
+    document.getElementById("ask-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = input.value.trim();
+      if (!v) return;
+      closeSheet();
+      onSave(v.slice(0, 40));
+    });
+  }
   function stashSheet(id) {
     sheet("<h2>Save to stash</h2>" + state.stashes.map(function (s) {
       var on = s.ideaIds.indexOf(id) >= 0;
@@ -1029,9 +1048,10 @@
           API.portal().then(function (r) { location.href = r.url; }, function (e) { el.disabled = false; toast(e.message); });
           break;
         }
-        if (!confirm("Cancel Pro? You'll go back to the free plan.")) break;
-        if (API.online) { API.cancel().then(refreshMe).then(function () { location.hash = "#/me"; render(); }, function (e) { toast(e.message); }); break; }
-        state.pro = null; save(); location.hash = "#/me";
+        askConfirm("Cancel Pro?", "You'll go back to the free plan.", "Cancel Pro", function () {
+          if (API.online) { API.cancel().then(refreshMe).then(function () { location.hash = "#/me"; render(); }, function (e) { toast(e.message); }); return; }
+          state.pro = null; save(); location.hash = "#/me"; render();
+        });
         break;
       case "logout":
         API.flush().then(API.logout).catch(function () {}).then(function () {
@@ -1110,36 +1130,38 @@
       }
       case "new-stash": {
         if (!isPro() && state.stashes.length >= FREE_STASH_LIMIT) { closeSheet(); requirePro("Create unlimited stashes"); return; }
-        var nm = prompt("Name your stash");
-        if (!nm || !nm.trim()) return;
-        var emojis = ["📘", "🧠", "💡", "🌱", "🎯", "🚀", "🧩", "🌙"];
-        var ns = { id: "st" + Date.now(), name: nm.trim().slice(0, 40), emoji: emojis[state.stashes.length % emojis.length], ideaIds: id ? [id] : [] };
-        state.stashes.push(ns); save();
-        if (id) { toast("Saved to " + ns.name); stashSheet(id); }
-        rerenderKeepScroll(); break;
+        askText("New stash", "", "e.g. Morning routine", "Create", function (nm) {
+          var emojis = ["📘", "🧠", "💡", "🌱", "🎯", "🚀", "🧩", "🌙"];
+          var ns = { id: "st" + Date.now(), name: nm, emoji: emojis[state.stashes.length % emojis.length], ideaIds: id ? [id] : [] };
+          state.stashes.push(ns); save(); checkBadges();
+          toast(id ? "Saved to " + ns.name : "Created " + ns.name);
+          if (id) stashSheet(id);
+          rerenderKeepScroll();
+        });
+        break;
       }
       case "rename-stash": {
         var rs = byId(state.stashes, id);
-        var nn = prompt("Rename stash", rs.name);
-        if (nn && nn.trim()) { rs.name = nn.trim().slice(0, 40); save(); render(); }
+        askText("Rename stash", rs.name, "Stash name", "Save", function (nn) { rs.name = nn; save(); render(); });
         break;
       }
       case "delete-stash":
-        if (confirm("Delete this stash? The ideas themselves stay available.")) {
+        askConfirm("Delete this stash?", "The ideas in it stay available everywhere else.", "Delete stash", function () {
           state.stashes = state.stashes.filter(function (x) { return x.id !== id; });
           save(); location.hash = "#/library";
-        }
+        });
         break;
       case "share": shareIdea(id); break;
       case "delete-idea": {
-        if (!confirm("Delete this idea for everyone?")) return;
-        var drop = function () {
-          community.ideas = community.ideas.filter(function (x) { return x.id !== id; });
-          state.custom = state.custom.filter(function (x) { return x.id !== id; });
-          save(); closeSheet(); toast("Idea deleted"); rerenderKeepScroll();
-        };
-        if (API.online && account) API.deleteIdea(id).then(drop, function (e) { toast(e.message); });
-        else drop();
+        askConfirm("Delete this idea?", "It will be removed from your profile and everyone's feed.", "Delete idea", function () {
+          var drop = function () {
+            community.ideas = community.ideas.filter(function (x) { return x.id !== id; });
+            state.custom = state.custom.filter(function (x) { return x.id !== id; });
+            save(); toast("Idea deleted"); rerenderKeepScroll();
+          };
+          if (API.online && account) API.deleteIdea(id).then(drop, function (e) { toast(e.message); });
+          else drop();
+        });
         break;
       }
 
@@ -1149,11 +1171,17 @@
       case "view-plan": planSheet(); break;
       case "retake": state.onboarded = false; ob = { step: 1, draft: null }; save(); render(); break;
       case "reset":
-        if (confirm("Erase your plan, stashes and reading history?")) { state = defaultState(); ob = { step: 0, draft: null }; save(); location.hash = ""; render(); }
+        askConfirm("Reset everything?", "This erases your plan, stashes, badges and reading history.", "Erase my data", function () {
+          var keepPro = state.pro;
+          state = defaultState(); ob = { step: 0, draft: null };
+          if (API.online) state.pro = keepPro; // a real subscription isn't part of the reset
+          save(); location.hash = ""; render();
+        });
         break;
 
       case "sheet-close": if (el.classList.contains("backdrop")) { closeSheet(); rerenderKeepScroll(); } break;
       case "sheet-close-btn": closeSheet(); rerenderKeepScroll(); break;
+      case "sheet-yes": { var fn = sheetAction; closeSheet(); if (fn) fn(); break; }
       case "sheet-link": closeSheet(); break;
     }
   }
@@ -1165,8 +1193,13 @@
   function shareIdea(id) {
     var i = idea(id); if (!i) return;
     var text = i.title + " — " + i.body + "\n\nvia Brightbits";
-    if (navigator.share) { navigator.share({ title: i.title, text: text }).catch(function () {}); return; }
-    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { toast("Copied to clipboard"); }, function () { toast("Couldn't copy"); });
+    var copy = function () {
+      if (!navigator.clipboard) { toast("Sharing isn't available here"); return; }
+      navigator.clipboard.writeText(text).then(function () { toast("Copied to clipboard"); }, function () { toast("Couldn't copy"); });
+    };
+    // Fall back to copying when the share sheet is unavailable or refused (but not when the user just closed it).
+    if (navigator.share) navigator.share({ title: i.title, text: text }).catch(function (e) { if (!e || e.name !== "AbortError") copy(); });
+    else copy();
   }
 
   document.addEventListener("click", function (e) {

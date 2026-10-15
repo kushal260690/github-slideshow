@@ -27,7 +27,7 @@ window.BB_API = (function () {
   }
 
   api.init = function () {
-    if (location.protocol === "file:") return Promise.resolve(false);
+    if (location.protocol === "file:" || window.BB_STATIC) return Promise.resolve(false);
     var timeout = new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 2500); });
     return Promise.race([request("GET", "health").catch(function () { return null; }), timeout]).then(function (h) {
       api.online = !!(h && h.ok);
